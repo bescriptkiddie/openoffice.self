@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <title>Selfware Presentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            /* 柔和冷调 + 霓虹点缀 */
+            --bg-color: #1a1e23; /* 雾蓝/深灰背景 */
+            --text-color: #e0e6ed; /* 浅灰文字 */
+            --accent-color: #00f0ff; /* 霓虹蓝 */
+            --secondary-accent: #b026ff; /* 霓虹紫 */
+            --slide-bg: #252a33; /* 稍微亮一点的卡片背景 */
+            --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            overflow: hidden; /* 防止滚动 */
+        }
+
+        /* 容器 */
+        #presentation-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 幻灯片卡片 */
+        .slide {
+            --scale: 1;
+            width: 80%;
+            height: 80%;
+            max-width: 1200px;
+            max-height: 800px;
+            background: rgba(37, 42, 51, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            padding: clamp(28px, 5vw, 60px);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
+                        transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            position: absolute;
+            pointer-events: none;
+            overflow: hidden;
+            scrollbar-gutter: stable;
+        }
+
+        .slide-inner {
+            width: 100%;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+            z-index: 10;
+            overflow: auto;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100px) scale(0.9);
+        }
+
+        .slide.next {
+            opacity: 0;
+            transform: translateX(100px) scale(0.9);
+        }
+
+        /* 内容样式 */
+        .slide h1 {
+            font-size: clamp(2.2rem, 5vw, 4rem);
+            margin-bottom: 0.5em;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            text-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        .slide h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: clamp(18px, 3vw, 40px);
+            color: var(--accent-color);
+            position: relative;
+            padding-bottom: clamp(10px, 1.5vw, 15px);
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        .slide h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--secondary-accent);
+            border-radius: 2px;
+        }
+
+        .slide ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: clamp(1.1rem, 2.6vw, 1.8rem);
+            max-width: 100%;
+        }
+
+        .slide li {
+            margin-bottom: clamp(10px, 2vw, 20px);
+            padding-left: 30px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .slide.active li {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* 依次显示列表项 */
+        .slide.active li:nth-child(1) { transition-delay: 0.2s; }
+        .slide.active li:nth-child(2) { transition-delay: 0.3s; }
+        .slide.active li:nth-child(3) { transition-delay: 0.4s; }
+        .slide.active li:nth-child(4) { transition-delay: 0.5s; }
+        .slide.active li:nth-child(5) { transition-delay: 0.6s; }
+
+        .slide li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-accent);
+            font-weight: bold;
+        }
+
+        p.big-text {
+            font-size: clamp(1.2rem, 3vw, 2.2rem);
+            line-height: 1.5;
+            color: #d1d5db;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        .sub-header {
+            font-size: clamp(0.95rem, 2vw, 1.5rem);
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        /* Scrollbar polish (active slide only) */
+        .slide.active {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 240, 255, 0.35) rgba(255, 255, 255, 0.06);
+        }
+        .slide.active::-webkit-scrollbar { width: 10px; }
+        .slide.active::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.06); border-radius: 999px; }
+        .slide.active::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.28); border-radius: 999px; }
+        .slide.active::-webkit-scrollbar-thumb:hover { background: rgba(0, 240, 255, 0.4); }
+
+        /* 导航控件 */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-color);
+            border-color: transparent;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        
+        .page-number {
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.3);
+            font-family: monospace;
+        }
+
+        /* 装饰背景元素 */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out;
+        }
+        .orb-1 { width: 400px; height: 400px; background: var(--accent-color); top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: var(--secondary-accent); bottom: -50px; right: -50px; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 50px); }
+        }
+
+    
+    
+/* Theme: Minimalist (Modern SaaS) */
+body.theme-minimalist {
+    --bg-color: #f3f4f6 !important;
+    --text-color: #111827 !important;
+    --accent-color: #0f172a !important;
+    --secondary-accent: #3b82f6 !important;
+    --slide-bg: #ffffff !important;
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+body.theme-minimalist .slide {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 24px !important;
+    color: #111827 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.theme-minimalist h1 {
+    background: none !important;
+    -webkit-text-fill-color: #111827 !important;
+    color: #111827 !important;
+    text-shadow: none !important;
+}
+
+body.theme-minimalist h2 {
+    color: #0f172a !important;
+}
+
+body.theme-minimalist p.big-text, 
+body.theme-minimalist .slide li {
+    color: #374151 !important;
+}
+
+body.theme-minimalist .btn {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+body.theme-minimalist .btn:hover {
+    background: #f9fafb !important;
+    color: #111827 !important;
+    border-color: #9ca3af !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+body.theme-minimalist .orb { display: none !important; }
+
+/* Theme: Book (Elegant Serif) */
+body.theme-book {
+    --bg-color: #f2efe9 !important;
+    --text-color: #2c241b !important;
+    --accent-color: #a0522d !important;
+    --secondary-accent: #8b4513 !important;
+    --slide-bg: #fdfbf7 !important;
+    --font-main: 'Merriweather', 'Georgia', serif !important;
+}
+
+body.theme-book .slide {
+    background: #fdfbf7 !important;
+    border: 1px solid rgba(160, 82, 45, 0.15) !important;
+    box-shadow: 0 25px 50px -12px rgba(60, 50, 40, 0.15) !important;
+    border-radius: 8px !important;
+    color: #2c241b !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.theme-book h1 {
+    background: none !important;
+    -webkit-text-fill-color: #2c241b !important;
+    color: #2c241b !important;
+    text-shadow: none !important;
+    font-family: 'Merriweather', serif !important;
+    font-weight: 700 !important;
+}
+
+body.theme-book h2 {
+    color: #a0522d !important;
+    font-family: 'Merriweather', serif !important;
+}
+
+body.theme-book p.big-text, 
+body.theme-book .slide li {
+    color: #4b3d32 !important;
+    font-family: 'Georgia', serif !important;
+}
+
+body.theme-book .btn {
+    background: #fdfbf7 !important;
+    border: 1px solid #e6e0d2 !important;
+    color: #5d5446 !important;
+    box-shadow: 0 2px 4px rgba(60, 50, 40, 0.05) !important;
+}
+body.theme-book .btn:hover {
+    background: #fff !important;
+    color: #2c241b !important;
+    border-color: #a0522d !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(60, 50, 40, 0.1) !important;
+}
+body.theme-book .orb { display: none !important; }
+</style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div id="presentation-container">
+        <!-- Slides will be injected here via JS -->
+    </div>
+
+    <div class="page-number">01 / 06</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <div class="controls">
+        <div class="btn" onclick="prevSlide()">❮</div>
+        <div class="btn" onclick="nextSlide()">❯</div>
+    </div>
+
+    <script src="../js/runtime.js?v=1"></script>
+    <script>
+        if (window.selfwareLang === 'zh') document.title = 'Selfware 演示';
+        let currentSlide = 0;
+        let slides = [];
+        const container = document.getElementById('presentation-container');
+        const progressBar = document.getElementById('progress');
+        const pageNumber = document.querySelector('.page-number');
+        let totalSlides = 0;
+
+        // Fetch and Render Content
+        fetch((window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content'))
+            .then(res => res.json())
+            .then(data => {
+                renderSlides(data.content);
+                initSlides();
+            })
+            .catch(err => {
+                console.error('Error fetching content:', err);
+                container.innerHTML = '<div class="slide active"><h1>Error loading content</h1><p>Please check the console.</p></div>';
+            });
+
+        function renderSlides(markdown) {
+            // Split markdown by headers (H1 or H2)
+            // Strategy: 
+            // 1. The first slide is usually the title (H1)
+            // 2. Subsequent slides start with H2 (##)
+            // We can split by "\n## " to separate sections.
+            // Note: This is a simple parser for demo purposes.
+            
+            const sections = markdown.split(/\n(?=## )|(?=^# )/g).filter(s => s.trim().length > 0);
+            
+            container.innerHTML = ''; // Clear loading/static content
+
+            sections.forEach((section, index) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = 'slide';
+                if (index === 0) slideDiv.classList.add('active'); // First slide active
+
+                // Parse content
+                // If it's the title slide (starts with # ), we might want special styling
+                const htmlContent = marked.parse(section);
+                slideDiv.innerHTML = `<div class="slide-inner">${htmlContent}</div>`;
+
+                // Add animation delays to list items
+                const listItems = slideDiv.querySelectorAll('li');
+                listItems.forEach((li, i) => {
+                    li.style.transitionDelay = `${0.2 + (i * 0.1)}s`;
+                });
+
+                // Add "big-text" class to first paragraph if it's not a title
+                const firstP = slideDiv.querySelector('p');
+                if (firstP && !slideDiv.querySelector('h1')) {
+                    firstP.classList.add('big-text');
+                }
+
+                container.appendChild(slideDiv);
+            });
+
+            // Re-select slides after injection
+            slides = document.querySelectorAll('.slide');
+            totalSlides = slides.length;
+        }
+
+        function initSlides() {
+            updateSlide();
+        }
+
+        function fitSlide(slide) {
+            // Ensure accurate measurement after the slide becomes active
+            // Reduce scale gradually until content fits, otherwise keep scroll as fallback.
+            const minScale = 0.45;
+            const headroom = 0.98;
+            let scale = 1;
+            const inner = slide.querySelector('.slide-inner');
+            if (!inner) return;
+            const supportsZoom = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('zoom', '1');
+
+            inner.style.transform = '';
+            inner.style.transformOrigin = '';
+            inner.style.zoom = '';
+
+            for (let i = 0; i < 10; i++) {
+                const s = +scale.toFixed(2);
+                if (supportsZoom) {
+                    inner.style.zoom = String(s);
+                } else {
+                    inner.style.transform = `scale(${s})`;
+                    inner.style.transformOrigin = 'top left';
+                }
+
+                void slide.offsetHeight;
+
+                const h = slide.clientHeight;
+                const sh = supportsZoom ? slide.scrollHeight : inner.getBoundingClientRect().height;
+                if (h <= 0 || sh <= 0) break;
+                if (sh <= h + 1) break;
+
+                const next = scale * (h / sh) * headroom;
+                scale = Math.max(minScale, Math.min(scale, next));
+            }
+        }
+
+        function updateSlide() {
+            if (slides.length === 0) return;
+
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev', 'next');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                } else {
+                    slide.classList.add('next');
+                }
+            });
+
+            const active = slides[currentSlide];
+            if (active) {
+                requestAnimationFrame(() => {
+                    active.scrollTop = 0;
+                    fitSlide(active);
+                });
+            }
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Update page number
+            pageNumber.textContent = `0${currentSlide + 1} / 0${totalSlides}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            const active = slides[currentSlide];
+            if (active) fitSlide(active);
+        });
+    </script>
+
+<script src="../js/view-switcher.js?v=5"></script></body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <title>Selfware Mindmap View</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1e23; /* 深空雾蓝 */
+            color: #e0e6ed; /* 浅灰文字 */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #app {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #markmap-container {
+            flex: 1;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Editor Styles */
+        #editor-panel {
+            width: 0; /* Hidden by default */
+            height: 100%;
+            background: #15181c;
+            border-right: 1px solid rgba(0, 240, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        #editor-panel.open {
+            width: 400px;
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e0e6ed;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        textarea::selection {
+            background: rgba(0, 240, 255, 0.3);
+        }
+
+        /* Markmap Customization overrides */
+        .markmap-node-text {
+            fill: #e0e6ed;
+        }
+        .markmap-link {
+            stroke: #b026ff; /* 电子紫连接线 */
+            opacity: 0.6;
+        }
+        .markmap-node-circle {
+            fill: #00f0ff;
+            stroke: #00f0ff;
+        }
+
+        /* Root cause: Markmap renders node labels inside foreignObject -> HTML div, not SVG text */
+        .markmap-foreign {
+            opacity: 1 !important;
+        }
+        .markmap-foreign > div {
+            color: #e0e6ed !important;
+            opacity: 1 !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.2px;
+            text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+        }
+    
+/* Theme: Minimalist (Modern SaaS) */
+body.theme-minimalist {
+    --bg-color: #f3f4f6 !important;
+    --card-bg: #ffffff !important;
+    --text-primary: #111827 !important;
+    --text-color: #111827 !important;
+    --text-secondary: #6b7280 !important;
+    --accent-color: #0f172a !important;
+    --secondary-accent: #3b82f6 !important;
+    --editor-bg: #ffffff !important;
+    --editor-border: #e5e7eb !important;
+    --slide-bg: #ffffff !important;
+    --grid-color: #e5e7eb !important;
+    --card-border: #e5e7eb !important;
+    background-image: none !important;
+    background-color: #f3f4f6 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+body.theme-minimalist .slide {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+}
+body.theme-minimalist .btn {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+body.theme-minimalist .btn:hover {
+    background: #f9fafb !important;
+    color: #111827 !important;
+    border-color: #9ca3af !important;
+}
+body.theme-minimalist #editor-panel {
+    background: #ffffff !important;
+    border-right: 1px solid #e5e7eb !important;
+}
+body.theme-minimalist textarea {
+    color: #111827 !important;
+}
+
+/* Theme: Book (Elegant Serif) */
+body.theme-book {
+    --bg-color: #f2efe9 !important;
+    --card-bg: #fdfbf7 !important;
+    --text-primary: #2c241b !important;
+    --text-color: #2c241b !important;
+    --text-secondary: #5d5446 !important;
+    --accent-color: #a0522d !important;
+    --secondary-accent: #8b4513 !important;
+    --editor-bg: #fdfbf7 !important;
+    --editor-border: #e6e0d2 !important;
+    --slide-bg: #fdfbf7 !important;
+    --grid-color: #e6e0d2 !important;
+    --card-border: #e6e0d2 !important;
+    --font-family: 'Merriweather', 'Georgia', 'Times New Roman', serif !important;
+    --font-main: 'Merriweather', 'Georgia', 'Times New Roman', serif !important;
+    background-image: none !important;
+    background-color: #f2efe9 !important;
+    font-family: 'Merriweather', 'Georgia', serif !important;
+}
+
+body.theme-book .slide {
+    box-shadow: 0 4px 20px rgba(60, 50, 40, 0.08) !important;
+    border: 1px solid rgba(160, 82, 45, 0.15) !important;
+    background: #fdfbf7 !important;
+    border-radius: 6px !important;
+}
+body.theme-book .btn {
+    background: #fdfbf7 !important;
+    border: 1px solid #e6e0d2 !important;
+    color: #5d5446 !important;
+    font-family: 'Merriweather', serif !important;
+    box-shadow: 0 2px 4px rgba(60, 50, 40, 0.05) !important;
+}
+body.theme-book .btn:hover {
+    background: #fff !important;
+    color: #2c241b !important;
+    border-color: #a0522d !important;
+}
+body.theme-book #editor-panel {
+    background: #fdfbf7 !important;
+    border-right: 1px solid #e6e0d2 !important;
+}
+body.theme-book textarea {
+    color: #2c241b !important;
+    font-family: 'Merriweather', serif !important;
+}
+
+/* Handle Mindmap Specifics */
+body.theme-minimalist #app header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+body.theme-book #app header {
+    background: rgba(253, 251, 247, 0.95) !important;
+    border-bottom: 1px solid rgba(160, 82, 45, 0.1) !important;
+}
+
+/* SVG Theme Overrides */
+body.theme-minimalist .markmap-node-text { fill: #111827 !important; font-weight: 700 !important; opacity: 1 !important; }
+body.theme-minimalist .markmap-node-text tspan { fill: #111827 !important; opacity: 1 !important; }
+body.theme-minimalist .markmap-link { stroke: #9ca3af !important; opacity: 1 !important; stroke-width: 1.5px !important; }
+body.theme-minimalist .markmap-node-circle { fill: #ffffff !important; stroke: #3b82f6 !important; stroke-width: 2px !important; }
+body.theme-minimalist .markmap-foreign > div { color: #111827 !important; text-shadow: none !important; }
+
+body.theme-book .markmap-node-text { fill: #2c241b !important; font-family: 'Merriweather', serif !important; font-weight: 700 !important; opacity: 1 !important; }
+body.theme-book .markmap-node-text tspan { fill: #2c241b !important; opacity: 1 !important; }
+body.theme-book .markmap-link { stroke: #c2b2a3 !important; opacity: 1 !important; stroke-width: 1.5px !important; }
+body.theme-book .markmap-node-circle { fill: #fdfbf7 !important; stroke: #a0522d !important; stroke-width: 1.5px !important; }
+body.theme-book .markmap-foreign > div { color: #2c241b !important; font-family: 'Merriweather', serif !important; text-shadow: none !important; }
+</style>
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Mindmap Visualization -->
+            <div id="markmap-container">
+                <svg id="markmap"></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Markmap -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.15.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.15.4/dist/browser/index.min.js"></script>
+
+    <script src="../js/runtime.js?v=1"></script>
+    <script>
+        // State
+        let currentMarkdown = "";
+        let mmInstance = null;
+
+        // Elements
+        const svgEl = document.querySelector('#markmap');
+
+        // Initialize: Fetch content from server
+        fetch((window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content'))
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                currentMarkdown = data.content;
+                renderMindmap(currentMarkdown);
+            })
+            .catch(err => {
+                console.error("Failed to load content:", err);
+                const errorMsg = "# Connection Error\\n\\nPlease ensure `server.py` is running at http://localhost:8000";
+                renderMindmap(errorMsg);
+            });
+            
+        // Listen for Global Editor Updates
+        window.addEventListener('audp-content-updated', (e) => {
+            currentMarkdown = e.detail;
+            renderMindmap(currentMarkdown);
+        });
+
+        // Functions
+        function renderMindmap(md) {
+            const transformer = new markmap.Transformer();
+            const { root, features } = transformer.transform(md);
+            
+            const { Markmap, loadCSS, loadJS } = markmap;
+
+            if (features.styles) loadCSS(features.styles);
+            if (features.scripts) loadJS(features.scripts);
+
+            // If instance exists, destroy or update? 
+            // Markmap.create clears the SVG content by default usually, 
+            // but let's clear it manually to be safe or just call create again.
+            svgEl.innerHTML = ''; 
+
+            // Progressive unfold from left to right (depth by depth).
+            // Key: we *actually* render only the visible depths each step so layout stays clean (no “clump”).
+            const seq = (renderMindmap.__seq = (renderMindmap.__seq || 0) + 1);
+            try {
+                const computeMaxDepth = (node, depth = 0) => {
+                    const kids = node.children || [];
+                    let max = depth;
+                    for (const k of kids) max = Math.max(max, computeMaxDepth(k, depth + 1));
+                    return max;
+                };
+                const cloneToDepth = (node, depth, keepDepth) => {
+                    const copy = { ...node };
+                    const kids = node.children || [];
+                    if (depth >= keepDepth) {
+                        copy.children = [];
+                    } else {
+                        copy.children = kids.map(k => cloneToDepth(k, depth + 1, keepDepth));
+                    }
+                    // markmap uses payload for metadata; keep it if present
+                    if (node.payload) copy.payload = { ...node.payload };
+                    return copy;
+                };
+
+                const fullRoot = root;
+                const maxDepth = computeMaxDepth(fullRoot, 0);
+                const initialRoot = cloneToDepth(fullRoot, 0, 0);
+
+                mmInstance = Markmap.create('#markmap', {
+                    autoFit: true,
+                    fitRatio: 0.95,
+                    duration: 380
+                }, initialRoot);
+
+                const stepMs = 520;
+                for (let keepDepth = 1; keepDepth <= maxDepth + 1; keepDepth++) {
+                    setTimeout(() => {
+                        if (renderMindmap.__seq !== seq) return;
+                        const nextRoot = cloneToDepth(fullRoot, 0, keepDepth);
+                        try { mmInstance.setData(nextRoot); } catch {}
+                        try { mmInstance.fit(); } catch {}
+                    }, keepDepth * stepMs);
+                }
+            } catch (e) {
+                console.warn('Mindmap progressive unfold failed', e);
+                mmInstance = Markmap.create('#markmap', { autoFit: true, fitRatio: 0.95, duration: 320 }, root);
+            }
+        }
+    </script>
+
+<script src="../js/view-switcher.js?v=5"></script></body>
+</html>

@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <title>Selfware Infinite Canvas</title>
+    <style>
+        :root {
+            --bg-color: #1a1e23;
+            --grid-color: #2c333a;
+            --card-bg: rgba(30, 35, 40, 0.85);
+            --card-border: rgba(0, 240, 255, 0.3);
+            --text-color: #e0e6ed;
+            --accent-color: #00f0ff;
+            --secondary-accent: #b026ff;
+            --selection-color: #ff0055;
+
+            --btn-bg: rgba(44, 51, 58, 0.8);
+            --btn-border: var(--card-border);
+            --btn-fg: var(--text-color);
+            --btn-hover-bg: var(--accent-color);
+            --btn-hover-fg: #000;
+
+            --toast-bg: var(--accent-color);
+            --toast-fg: #000;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+        }
+
+        /* --- Canvas Container --- */
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-origin: 0 0;
+            cursor: grab;
+            overflow: visible;
+        }
+        #canvas-container.grabbing { cursor: grabbing; }
+        #canvas-container.link-mode { cursor: crosshair; }
+
+        /* --- Cards --- */
+        .card {
+            position: absolute;
+            width: 260px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: box-shadow 0.2s, border-color 0.2s, transform 0.1s;
+            user-select: none;
+            cursor: default;
+            z-index: 10;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 40px rgba(0, 240, 255, 0.15);
+            border-color: var(--accent-color);
+            z-index: 100;
+        }
+
+        .card.selected {
+            border-color: var(--selection-color);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+        }
+
+        .card-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            pointer-events: none;
+        }
+
+        .card-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #b0b8c3;
+            pointer-events: none;
+        }
+        .card-content ul { padding-left: 20px; margin: 0; }
+        .card-content p { margin: 5px 0; }
+
+        .card.root-card {
+            width: 320px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 2px solid var(--accent-color);
+        }
+        .card.root-card .card-header { font-size: 1.4rem; color: #fff; text-align: center; }
+
+        /* --- SVG Connections --- */
+        svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        path {
+            fill: none;
+            stroke: var(--secondary-accent);
+            stroke-width: 2;
+            opacity: 0.5;
+            transition: opacity 0.2s, stroke 0.2s;
+            pointer-events: visibleStroke; /* Allow clicking the stroke */
+            cursor: pointer;
+        }
+        path:hover { opacity: 1; stroke-width: 3; }
+
+        path.hierarchy { stroke: var(--secondary-accent); }
+        
+        path.semantic { 
+            stroke: #2ecc71; /* Green */
+            stroke-dasharray: 5, 5;
+            opacity: 0.8;
+        }
+
+        path.custom-link { stroke: #e74c3c; /* Red-ish for manual? Or keep default */ }
+
+        path.selected { stroke: var(--selection-color) !important; opacity: 1; stroke-width: 3; stroke-dasharray: 5,5; animation: dash 1s linear infinite; }
+        
+        @keyframes dash { to { stroke-dashoffset: -10; } }
+
+        /* --- Editor Panel --- */
+        #editor-panel {
+            position: fixed;
+            top: 0; right: 0;
+            width: 400px;
+            height: 100%;
+            background: rgba(20, 23, 28, 0.95);
+            border-left: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+
+        #editor-panel.open { transform: translateX(0); }
+
+        .editor-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        #editor-textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 20px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            white-space: pre-wrap;
+        }
+        #editor-textarea:focus { background: rgba(0,0,0,0.2); }
+
+        /* --- Controls --- */
+        .controls {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            gap: 12px;
+            z-index: 500;
+        }
+
+        .btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: var(--btn-fg);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background: var(--btn-hover-bg);
+            color: var(--btn-hover-fg);
+            transform: translateY(-2px);
+        }
+        
+        .btn.active {
+            background: var(--selection-color);
+            border-color: var(--selection-color);
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--toast-bg);
+            color: var(--toast-fg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 2000;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+        .toast.show { opacity: 1; visibility: visible; }
+
+    
+    
+/* Theme: Minimalist (Modern SaaS) */
+body.theme-minimalist {
+    --bg-color: #f3f4f6 !important;
+    --grid-color: #e5e7eb !important;
+    --card-bg: #ffffff !important;
+    --card-border: #e5e7eb !important;
+    --text-color: #111827 !important;
+    --accent-color: #0f172a !important;
+    --secondary-accent: #3b82f6 !important;
+    --selection-color: #2563eb !important;
+    --btn-hover-bg: #0f172a !important;
+    --btn-hover-fg: #ffffff !important;
+    --toast-bg: #0f172a !important;
+    --toast-fg: #ffffff !important;
+    background-image: radial-gradient(#d1d5db 1px, transparent 1px) !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+body.theme-minimalist .card {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    backdrop-filter: none !important;
+    border-radius: 12px !important;
+}
+body.theme-minimalist .card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    border-color: #3b82f6 !important;
+}
+
+body.theme-minimalist .card-header {
+    border-bottom: 1px solid #f3f4f6 !important;
+    color: #111827 !important;
+    font-weight: 600 !important;
+}
+
+body.theme-minimalist .card-content {
+    color: #4b5563 !important;
+}
+
+body.theme-minimalist path {
+    stroke: #9ca3af !important; /* Slightly darker for visibility on gray */
+}
+body.theme-minimalist path:hover {
+    stroke: #4b5563 !important;
+}
+body.theme-minimalist path.selected {
+    stroke: #2563eb !important;
+}
+body.theme-minimalist .btn {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+body.theme-minimalist .btn:hover {
+    background: #f9fafb !important;
+    color: #111827 !important;
+    border-color: #9ca3af !important;
+}
+body.theme-minimalist .btn.active {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+}
+
+/* Theme: Book (Elegant Serif) */
+body.theme-book {
+    --bg-color: #f2efe9 !important;
+    --grid-color: #e6e0d2 !important;
+    --card-bg: #fdfbf7 !important;
+    --card-border: #e6e0d2 !important;
+    --text-color: #2c241b !important;
+    --accent-color: #a0522d !important;
+    --secondary-accent: #8b4513 !important;
+    --selection-color: #a0522d !important;
+    --btn-hover-bg: #a0522d !important;
+    --btn-hover-fg: #ffffff !important;
+    --toast-bg: #a0522d !important;
+    --toast-fg: #ffffff !important;
+    background-image: radial-gradient(#d4cbb8 1px, transparent 1px) !important;
+    font-family: 'Merriweather', serif !important;
+}
+
+body.theme-book .card {
+    box-shadow: 0 4px 20px rgba(60, 50, 40, 0.08) !important;
+    backdrop-filter: none !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(160, 82, 45, 0.15) !important;
+}
+body.theme-book .card:hover {
+    box-shadow: 0 10px 30px rgba(60, 50, 40, 0.12) !important;
+    border-color: #a0522d !important;
+}
+
+body.theme-book .card-header {
+    border-bottom: 1px solid rgba(160, 82, 45, 0.1) !important;
+    color: #a0522d !important;
+    font-family: 'Merriweather', serif !important;
+}
+
+body.theme-book .card-content {
+    color: #5d5446 !important;
+    font-family: 'Georgia', serif !important;
+}
+
+body.theme-book path {
+    stroke: #c2b2a3 !important;
+}
+body.theme-book path:hover {
+    stroke: #8b7355 !important;
+}
+body.theme-book path.selected {
+    stroke: #a0522d !important;
+}
+body.theme-book .btn {
+    background: #fdfbf7 !important;
+    border: 1px solid #e6e0d2 !important;
+    color: #5d5446 !important;
+    font-family: 'Merriweather', serif !important;
+    box-shadow: 0 2px 5px rgba(60,50,40,0.05) !important;
+}
+body.theme-book .btn:hover {
+    background: #fff !important;
+    color: #2c241b !important;
+    border-color: #a0522d !important;
+}
+body.theme-book .btn.active {
+    background: #a0522d !important;
+    color: #fff !important;
+    border-color: #a0522d !important;
+}
+</style>
+</head>
+<body>
+
+    <!-- Canvas -->
+    <div id="canvas-container">
+        <svg id="connections"></svg>
+        <!-- Cards injected via JS -->
+    </div>
+
+    <!-- UI Overlay -->
+    <div class="controls">
+        <button class="btn" onclick="toggleLinkMode()" id="btn-link">🔗 Link</button>
+        <button class="btn" onclick="resetView()" id="btn-reset">🎯 Reset</button>
+    </div>
+
+    <!-- Editor Panel Removed (Global Used) -->
+
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/runtime.js?v=1"></script>
+    <script>
+        const t = (k, f) => (window.selfwareT ? window.selfwareT(k, f) : (f || k));
+        if (window.selfwareLang === 'en') {
+            const elLink = document.getElementById('btn-link');
+            const elReset = document.getElementById('btn-reset');
+            if (elLink) elLink.innerHTML = '🔗 ' + t('canvas.btn_link', 'Link');
+            if (elReset) elReset.innerHTML = '🎯 ' + t('canvas.btn_reset', 'Reset');
+        }
+
+        // --- State Management ---
+        let state = {
+            markdown: "", 
+            cards: [], // { id, title, content, x, y, el }
+            links: [], // { id, sourceId, targetId, el, custom: bool }
+            scale: 1,
+            panX: 0,
+            panY: 0,
+            linkMode: false,
+            selectedLink: null,
+            linkSource: null // for creating new link
+        };
+
+        const container = document.getElementById('canvas-container');
+        const svg = document.getElementById('connections');
+        // const textarea = document.getElementById('editor-textarea'); // Removed
+
+        // --- Init: Fetch content from server ---
+        fetch((window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content'))
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to fetch content");
+                return res.json();
+            })
+            .then(data => {
+                state.markdown = data.content;
+                // Parse and Render
+                const nodes = parseToNodes(state.markdown);
+                reconcileNodes(nodes);
+                
+                // Reset View
+                setTimeout(() => {
+                    resetView();
+                    state.panX = 0; state.panY = 0;
+                    updateTransform();
+                }, 100);
+            })
+            .catch(err => {
+                console.error(err);
+                showToast("❌ Error loading content from server");
+            });
+
+        // Listen for Global Updates
+        window.addEventListener('audp-content-updated', (e) => {
+            state.markdown = e.detail;
+            const nodes = parseToNodes(state.markdown);
+            reconcileNodes(nodes);
+            showToast(t('canvas.toast_updated', "View Updated"));
+        });
+
+        // --- 2. Markdown Parser & Reconciler ---
+        
+        function parseToNodes(md) {
+            if (!md) return [];
+            const lines = md.replace(/\r\n?/g, '\n').split('\n');
+            const nodes = [];
+
+            const usedIds = new Map();
+            const makeId = (title) => {
+                const base = 'node-' + String(title || 'untitled')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^a-z0-9\-_]/g, '')
+                    .slice(0, 60) || 'node-untitled';
+                const n = usedIds.get(base) || 0;
+                usedIds.set(base, n + 1);
+                return n === 0 ? base : `${base}-${n + 1}`;
+            };
+
+            const docTitleMatch = md.match(/^#\s+(.+)$/m);
+            const fallbackDocTitle = docTitleMatch ? docTitleMatch[1].trim() : 'Selfware';
+
+            // Stack to keep track of the last node at each level
+            // level 1 is Root, 2 is H2, 3 is H3
+            let contextStack = { 1: null, 2: null, 3: null }; 
+
+            let currentNode = null;
+            let insideStyle = false;
+            let insideImg = false;
+            function ensureRoot() {
+                if (contextStack[1]) return contextStack[1];
+                const title = fallbackDocTitle || 'Selfware';
+                const id = makeId(title);
+                const root = { id, title, content: [], level: 1, parentId: null, links: [] };
+                nodes.push(root);
+                contextStack[1] = root;
+                contextStack[2] = null;
+                contextStack[3] = null;
+                currentNode = root;
+                return root;
+            }
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+                if (insideStyle) {
+                    if (/^<\/style/i.test(trimmed)) insideStyle = false;
+                    return;
+                }
+                if (/^<style[\s>]/i.test(trimmed)) {
+                    // Skip until we see </style>
+                    insideStyle = true;
+                    return;
+                }
+
+                if (trimmed.startsWith('# ')) {
+                    // H1 - Root
+                    const title = trimmed.substring(2);
+                    const id = makeId(title);
+                    currentNode = { id, title, content: [], level: 1, parentId: null, links: [] };
+                    nodes.push(currentNode);
+                    
+                    contextStack[1] = currentNode;
+                    contextStack[2] = null; // Reset lower levels
+                    contextStack[3] = null;
+                } else if (trimmed.startsWith('## ')) {
+                    // H2
+                    ensureRoot();
+                    const title = trimmed.substring(3);
+                    const id = makeId(title);
+                    const parent = contextStack[1];
+                    currentNode = { id, title, content: [], level: 2, parentId: parent ? parent.id : null, links: [] };
+                    nodes.push(currentNode);
+                    
+                    contextStack[2] = currentNode;
+                    contextStack[3] = null;
+                } else if (trimmed.startsWith('### ')) {
+                    // H3
+                    ensureRoot();
+                    const title = trimmed.substring(4);
+                    const id = makeId(title);
+                    const parent = contextStack[2]; // Parent is the last H2
+                    currentNode = { id, title, content: [], level: 3, parentId: parent ? parent.id : null, links: [] };
+                    nodes.push(currentNode);
+                    
+                    contextStack[3] = currentNode;
+                } else {
+                    // Content
+                    if (!currentNode) ensureRoot();
+                    if (currentNode) {
+                        // Ignore markdown separators and inline HTML noise for the canvas cards.
+                        if (/^-{3,}$/.test(trimmed)) return;
+                        if (insideImg) {
+                            if (/>$/.test(trimmed)) insideImg = false;
+                            return;
+                        }
+                        if (/^<img[\s>]/i.test(trimmed)) {
+                            if (!/>$/.test(trimmed)) insideImg = true;
+                            return;
+                        }
+                        if (/^(alt|width|height|style)=/i.test(trimmed)) return;
+                        if (trimmed === '>') return;
+                        currentNode.content.push(trimmed);
+                        // Check for links: [Label](#Target)
+                        // Regex to capture [label](#target)
+                        const linkRegex = /\[(.*?)\]\(#(.*?)\)/g;
+                        let match;
+                        while ((match = linkRegex.exec(trimmed)) !== null) {
+                            currentNode.links.push({
+                                label: match[1],
+                                targetTitle: match[2]
+                            });
+                        }
+                    }
+                }
+            });
+            return nodes;
+        }
+
+        function reconcileNodes(newNodes) {
+            // This function updates the state.cards based on newNodes from Markdown
+            // Preserving positions of existing nodes (matched by title/id)
+            
+            // 1. Calculate ideal Tree Layout positions for EVERYONE first
+            // This ensures we have a "target" or default position that is elegant
+            const treePositions = calculateTreeLayout(newNodes);
+
+            const existingMap = new Map(state.cards.map(c => [c.title, c])); // Match by Title for UX
+            const nextCards = [];
+
+            newNodes.forEach((node, index) => {
+                const existing = existingMap.get(node.title);
+                
+                let x, y;
+                if (existing) {
+                    x = existing.x;
+                    y = existing.y;
+                    // Update content if changed
+                    if (existing.el) {
+                        const contentEl = existing.el.querySelector('.card-content');
+                        if (contentEl) contentEl.innerHTML = formatContent(node.content);
+                    }
+                } else {
+                    // New Node: Use the calculated Tree Layout position
+                    const pos = treePositions[node.id];
+                    if (pos) {
+                        x = pos.x;
+                        y = pos.y;
+                    } else {
+                        // Fallback (shouldn't happen if layout covers all)
+                        x = window.innerWidth/2;
+                        y = window.innerHeight/2;
+                    }
+                }
+
+                nextCards.push({
+                    ...node,
+                    x, y,
+                    el: existing ? existing.el : null // DOM el will be created in render if null
+                });
+            });
+
+            // Remove deleted cards (DOM)
+            state.cards.forEach(c => {
+                if (!nextCards.find(n => n.title === c.title)) {
+                    if (c.el) c.el.remove();
+                }
+            });
+
+            state.cards = nextCards;
+            renderCards();
+            updateLinks(); // Re-calculate links
+        }
+
+        // --- Layout Algorithm ---
+        function calculateTreeLayout(nodes) {
+            const positions = {};
+            const GAP_X = 350; // Horizontal spacing
+            const GAP_Y = 240; // Vertical spacing (card height + gap)
+            
+            // 1. Build Tree Structure
+            const root = nodes.find(n => n.level === 1);
+            if (!root) return {};
+
+            const tree = { ...root, children: [] };
+            const idMap = { [root.id]: tree };
+
+            // Find children for each node
+            // Note: simplistic parenting based on order/level or explicit parentId
+            // The parser gave us explicit parentId, let's use it.
+            
+            // Create map for all nodes first
+            nodes.forEach(n => {
+                if (n.level !== 1) {
+                    idMap[n.id] = { ...n, children: [] };
+                }
+            });
+
+            nodes.forEach(n => {
+                if (n.level > 1 && n.parentId && idMap[n.parentId]) {
+                    idMap[n.parentId].children.push(idMap[n.id]);
+                }
+            });
+
+            // 2. Recursive Layout
+            // Returns the total height of the subtree
+            function layoutSubtree(node, x, startY) {
+                // If leaf (no children or children not in list)
+                if (!node.children || node.children.length === 0) {
+                    positions[node.id] = { x, y: startY };
+                    return GAP_Y; // Height of this node
+                }
+
+                // Layout children
+                let currentY = startY;
+                let childHeightSum = 0;
+                
+                node.children.forEach(child => {
+                    const h = layoutSubtree(child, x + GAP_X, currentY);
+                    currentY += h;
+                    childHeightSum += h;
+                });
+
+                // Position self centered relative to children
+                const firstChildY = positions[node.children[0].id].y;
+                const lastChildY = positions[node.children[node.children.length-1].id].y;
+                const midY = (firstChildY + lastChildY) / 2;
+
+                positions[node.id] = { x, y: midY };
+                
+                return childHeightSum;
+            }
+
+            // Start layout from Root
+            // Initial Y is 0, we'll center later
+            const totalH = layoutSubtree(tree, 0, 0);
+
+            // 3. Center globally
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            
+            // Shift so root is at left-center
+            const rootX = centerX - 300; 
+            const rootY = centerY - (totalH / 2) + (GAP_Y/2); // approximate center
+
+            // Apply offsets
+            const finalPositions = {};
+            
+            // Calculate offset based on root's calculated position (0, midY) vs desired (rootX, centerY)
+            // But layoutSubtree returns relative Ys starting from 0. 
+            // The root's Y was calculated as average of children.
+            // Let's just shift everything so Root is at (rootX, centerY)
+            
+            const calculatedRoot = positions[root.id];
+            const offsetX = rootX - calculatedRoot.x;
+            const offsetY = centerY - calculatedRoot.y;
+
+            Object.keys(positions).forEach(id => {
+                finalPositions[id] = {
+                    x: positions[id].x + offsetX,
+                    y: positions[id].y + offsetY
+                };
+            });
+
+            return finalPositions;
+        }
+
+        function formatContent(lines) {
+            let html = '';
+            let insideList = null; // 'ul' | 'ol'
+            lines.forEach(line => {
+                const ul = line.match(/^[-*+]\s+(.*)$/);
+                const ol = line.match(/^\d+[.)]\s+(.*)$/);
+                if (ul) {
+                    if (insideList !== 'ul') {
+                        if (insideList === 'ol') html += '</ol>';
+                        html += '<ul>';
+                        insideList = 'ul';
+                    }
+                    html += `<li>${ul[1]}</li>`;
+                } else if (ol) {
+                    if (insideList !== 'ol') {
+                        if (insideList === 'ul') html += '</ul>';
+                        html += '<ol>';
+                        insideList = 'ol';
+                    }
+                    html += `<li>${ol[1]}</li>`;
+                } else {
+                    if (insideList === 'ul') html += '</ul>';
+                    if (insideList === 'ol') html += '</ol>';
+                    insideList = null;
+                    html += `<p>${line}</p>`;
+                }
+            });
+            if (insideList === 'ul') html += '</ul>';
+            if (insideList === 'ol') html += '</ol>';
+            return html;
+        }
+
+        // --- 3. Rendering ---
+
+        function renderCards() {
+            state.cards.forEach(card => {
+                if (!card.el) {
+                    const el = document.createElement('div');
+                    el.className = `card ${card.level === 1 ? 'root-card' : ''}`;
+                    el.id = card.id;
+                    el.style.left = card.x + 'px';
+                    el.style.top = card.y + 'px';
+                    
+                    el.innerHTML = `
+                        <div class="card-header">${card.title}</div>
+                        <div class="card-content">${formatContent(card.content)}</div>
+                    `;
+                    
+                    container.appendChild(el);
+                    card.el = el;
+                    makeDraggable(el, card);
+
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (state.linkMode) handleLinkClick(card);
+                    });
+                }
+            });
+        }
+
+        // --- 4. Link System ---
+
+        function updateLinks() {
+            // Clear current SVG content
+            while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+
+            const activeLinks = [];
+
+            // 1. Hierarchy & Semantic Links from State (Parsed from MD)
+            state.cards.forEach(node => {
+                // A. Hierarchy (Parent -> Child)
+                if (node.parentId) {
+                    activeLinks.push({ s: node.parentId, t: node.id, type: 'hierarchy' });
+                }
+
+                // B. Semantic (Markdown [link](#anchor))
+                if (node.links) {
+                    node.links.forEach(linkDef => {
+                        // Find target by title (case-insensitive to be safe)
+                        const targetNode = state.cards.find(c => c.title === linkDef.targetTitle || c.title.toLowerCase() === linkDef.targetTitle.toLowerCase());
+                        if (targetNode) {
+                             activeLinks.push({
+                                 s: node.id, 
+                                 t: targetNode.id, 
+                                 type: 'semantic', 
+                                 label: linkDef.label,
+                                 sourceTitle: node.title,
+                                 targetTitle: targetNode.title
+                             });
+                        }
+                    });
+                }
+            });
+
+            // 2. Custom Links (Manual connections)
+            state.links.forEach(l => {
+                activeLinks.push({ s: l.sourceId, t: l.targetId, type: 'custom', id: l.id });
+            });
+
+            // Render
+            activeLinks.forEach(linkData => {
+                const source = state.cards.find(c => c.id === linkData.s);
+                const target = state.cards.find(c => c.id === linkData.t);
+                if (source && target && source.el && target.el) {
+                    drawPath(source, target, linkData.type, linkData.id, linkData.label, linkData.sourceTitle, linkData.targetTitle);
+                }
+            });
+        }
+
+        function drawPath(source, target, type, id, label, sourceTitle, targetTitle) {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const d = calculateBezier(source, target);
+            path.setAttribute("d", d);
+            path.id = id || `link-${source.id}-${target.id}`;
+            
+            // Store meta for delete
+            if (sourceTitle) path.dataset.sourceTitle = sourceTitle;
+            if (targetTitle) path.dataset.targetTitle = targetTitle;
+            path.dataset.type = type;
+
+            // Add CSS classes based on type
+            if (type === 'semantic') {
+                path.classList.add('semantic');
+            } else if (type === 'hierarchy') {
+                path.classList.add('hierarchy');
+            } else if (type === 'custom') {
+                path.classList.add('custom-link');
+            }
+
+            // Interactive listeners for select/delete
+            if (type === 'custom' || type === 'semantic') {
+                path.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectLink(path, id);
+                });
+            }
+
+            svg.appendChild(path);
+        }
+
+        function calculateBezier(source, target) {
+            // Use styles (model data)
+            const sx = source.x + source.el.offsetWidth/2;
+            const sy = source.y + source.el.offsetHeight/2;
+            const tx = target.x + target.el.offsetWidth/2;
+            const ty = target.y + target.el.offsetHeight/2;
+
+            const dx = tx - sx;
+            const dy = ty - sy;
+            const c1x = sx + dx * 0.4;
+            const c1y = sy + dy * 0.1;
+            const c2x = tx - dx * 0.4;
+            const c2y = ty - dy * 0.1;
+
+            return `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${tx} ${ty}`;
+        }
+
+        // --- 5. Interaction (Drag, Zoom, Link) ---
+
+        function makeDraggable(el, cardModel) {
+            let isDragging = false;
+            let startX, startY;
+
+            el.addEventListener('mousedown', e => {
+                if (e.button !== 0 || state.linkMode) return; // Ignore if linking
+                e.stopPropagation();
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                // Bring to front
+                el.style.zIndex = 1000;
+            });
+
+            window.addEventListener('mousemove', e => {
+                if (isDragging) {
+                    const dx = (e.clientX - startX) / state.scale;
+                    const dy = (e.clientY - startY) / state.scale;
+                    
+                    cardModel.x += dx;
+                    cardModel.y += dy;
+                    el.style.left = cardModel.x + 'px';
+                    el.style.top = cardModel.y + 'px';
+
+                    startX = e.clientX;
+                    startY = e.clientY;
+
+                    updateLinks(); // Redraw lines
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    el.style.zIndex = '';
+                }
+            });
+        }
+
+        // Pan & Zoom
+        document.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            if (state.linkMode) return;
+            if (e.target && e.target.closest && e.target.closest('.card, .controls, .top-left-controls, #global-editor-sidebar, #global-editor-overlay')) return;
+            if (String(e.target.tagName || '').toLowerCase() === 'path') return; // allow link selection
+
+            // Deselect link
+            if (state.selectedLink) {
+                state.selectedLink.classList.remove('selected');
+                state.selectedLink = null;
+            }
+
+            // Pan logic (global)
+            state.isPanning = true;
+            state.panStartX = e.clientX - state.panX;
+            state.panStartY = e.clientY - state.panY;
+            container.classList.add('grabbing');
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (state.isPanning) {
+                e.preventDefault();
+                state.panX = e.clientX - state.panStartX;
+                state.panY = e.clientY - state.panStartY;
+                updateTransform();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            state.isPanning = false;
+            container.classList.remove('grabbing');
+        });
+
+        window.addEventListener('wheel', e => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const delta = e.deltaY * -0.001;
+                state.scale = Math.min(Math.max(0.1, state.scale + delta), 4);
+                updateTransform();
+            }
+        }, { passive: false });
+
+        function updateTransform() {
+            container.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
+        }
+
+        // --- 6. Editor & Features ---
+        // Editor logic moved to Global Switcher
+
+        // Link Mode
+        function toggleLinkMode() {
+            state.linkMode = !state.linkMode;
+            const btn = document.getElementById('btn-link');
+            btn.classList.toggle('active', state.linkMode);
+            container.classList.toggle('link-mode', state.linkMode);
+            state.linkSource = null;
+            showToast(state.linkMode ? 'Link Mode: Click Source then Target' : 'Link Mode Exited');
+        }
+
+        function injectMarkdownLink(sourceCard, targetCard) {
+            const lines = state.markdown.split('\n');
+            const sourceTitle = sourceCard.title;
+            const targetTitle = targetCard.title;
+            
+            // Regex to match header
+            const escapedTitle = sourceTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const headerPattern = new RegExp(`^#{1,3}\\s+${escapedTitle}\\s*$`);
+            
+            let targetLineIndex = -1;
+            for (let i = 0; i < lines.length; i++) {
+                if (headerPattern.test(lines[i].trim())) {
+                    targetLineIndex = i;
+                    break;
+                }
+            }
+            
+            if (targetLineIndex !== -1) {
+                // Find insertion point - try to append to last paragraph
+                let insertionIndex = targetLineIndex + 1;
+                let lastContentLineIndex = -1;
+                
+                while (insertionIndex < lines.length) {
+                    if (lines[insertionIndex].trim().startsWith('#')) break; // End of section
+                    if (lines[insertionIndex].trim() !== '') {
+                        lastContentLineIndex = insertionIndex;
+                    }
+                    insertionIndex++;
+                }
+                
+                const linkLabel = (window.selfwareLang === 'en') ? t('canvas.md_link_text', 'See') : '参见';
+                const linkText = `[${linkLabel}](#${targetTitle})`;
+                
+                if (lastContentLineIndex !== -1) {
+                    // Append to existing line
+                    lines[lastContentLineIndex] = lines[lastContentLineIndex] + ' ' + linkText;
+                } else {
+                    // Empty section, add new line
+                    lines.splice(targetLineIndex + 1, 0, linkText);
+                }
+
+                const newMarkdown = lines.join('\n');
+                
+                // Save to server directly
+                fetch((window.selfwareWithLang ? window.selfwareWithLang('/api/save') : '/api/save'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newMarkdown, lang: (window.selfwareLang || 'zh') })
+                }).then(res => {
+                    if(res.ok) {
+                        window.dispatchEvent(new CustomEvent('audp-content-updated', { detail: newMarkdown }));
+                        showToast(`🔗 ${t('canvas.toast_link_added', 'Link added')}: [#${targetTitle}]`);
+                    } else {
+                        showToast(`❌ ${t('canvas.toast_save_failed', 'Save failed')}`);
+                    }
+                });
+
+            } else {
+                console.error("Header not found for card:", sourceTitle);
+                showToast('❌ Error: Could not find header in Markdown');
+            }
+        }
+
+        function handleLinkClick(card) {
+            if (!state.linkSource) {
+                state.linkSource = card;
+                card.el.style.borderColor = '#b026ff'; // Highlight source
+                showToast(t('canvas.toast_source_selected', 'Source selected: ') + card.title);
+            } else {
+                if (state.linkSource.id === card.id) return; // Cancel if same
+                
+                // Inject Markdown Link
+                injectMarkdownLink(state.linkSource, card);
+                
+                // Reset UI
+                state.linkSource.el.style.borderColor = '';
+                state.linkSource = null;
+                toggleLinkMode(); 
+            }
+        }
+
+        // Delete Link Logic
+        function selectLink(pathEl, id) {
+            if (state.selectedLink) state.selectedLink.classList.remove('selected');
+            state.selectedLink = pathEl;
+            pathEl.classList.add('selected');
+        }
+
+        function deleteMarkdownLink(linkEl) {
+            const sourceTitle = linkEl.dataset.sourceTitle;
+            const targetTitle = linkEl.dataset.targetTitle;
+            if (!sourceTitle || !targetTitle) return;
+
+            const lines = state.markdown.split('\n');
+            
+            // Logic to find and remove link
+            const escapedTitle = sourceTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const headerPattern = new RegExp(`^#{1,3}\\s+${escapedTitle}\\s*$`);
+            
+            let inSection = false;
+            let found = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (headerPattern.test(line.trim())) {
+                    inSection = true;
+                    continue;
+                }
+                
+                if (inSection) {
+                    if (line.trim().startsWith('#')) break; // End of section
+
+                    const escapedTarget = targetTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const linkRegex = new RegExp(`\\[.*?\\]\\(#${escapedTarget}\\)`, 'g');
+                    
+                    if (linkRegex.test(line)) {
+                        lines[i] = line.replace(linkRegex, '').trim();
+                        found = true;
+                    }
+                }
+            }
+
+            if (found) {
+                const newMarkdown = lines.join('\n');
+                
+                fetch((window.selfwareWithLang ? window.selfwareWithLang('/api/save') : '/api/save'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newMarkdown, lang: (window.selfwareLang || 'zh') })
+                }).then(res => {
+                    if(res.ok) {
+                        window.dispatchEvent(new CustomEvent('audp-content-updated', { detail: newMarkdown }));
+                        showToast('🔗 ' + t('canvas.toast_link_deleted', 'Semantic link deleted'));
+                    }
+                });
+            } else {
+                showToast('⚠️ ' + t('canvas.toast_link_not_found', 'Could not find link in source'));
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedLink) {
+                const type = state.selectedLink.dataset.type;
+                
+                if (type === 'semantic') {
+                    deleteMarkdownLink(state.selectedLink);
+                } else if (type === 'custom') {
+                    const linkId = state.selectedLink.id;
+                    state.links = state.links.filter(l => l.id !== linkId);
+                    showToast('Connection Deleted');
+                }
+                
+                if (state.selectedLink) { // might have been removed by re-render
+                    state.selectedLink.remove();
+                    state.selectedLink = null;
+                }
+            }
+        });
+
+        // Save (Handled globally, but visual link creation needs to save)
+        // saveView function removed.
+
+        function resetView() {
+            state.panX = 0; state.panY = 0; state.scale = 1;
+            updateTransform();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // --- Init called via fetch now ---
+
+    </script>
+
+<script src="../js/view-switcher.js?v=5"></script></body>
+</html>

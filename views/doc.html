@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <title>Doc View - Selfware</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      /* Default Dark Theme (Matches self.html / card.html) */
+      --bg: #1a1e23;
+      --panel: rgba(255, 255, 255, 0.05);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text: #e0e6ed;
+      --muted: #94a3b8;
+      --accent: #00f0ff;
+      --accent-2: #b026ff;
+      --code-bg: rgba(0, 0, 0, 0.3);
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      --radius: 16px;
+    }
+
+    /* Minimalist (Light) Theme Override */
+    body.theme-minimalist {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --panel-border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #0f172a;
+      --accent-2: #3b82f6;
+      --code-bg: #f9fafb;
+      --border: #e5e7eb;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Book (Serif) Theme Override */
+    body.theme-book {
+      --bg: #fdfbf7;
+      --panel: #fdfbf7;
+      --panel-border: #e6e0d2;
+      --text: #2c241b;
+      --muted: #5d5446;
+      --accent: #a0522d;
+      --accent-2: #8b4513;
+      --code-bg: #f5f2eb;
+      --border: #e6e0d2;
+      --shadow: none;
+      --font-sans: 'Merriweather', 'Georgia', serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      /* Subtle grid pattern for texture */
+      background-image: radial-gradient(var(--panel-border) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Ambient Background Glow (Only in Dark Mode) */
+    body:not(.theme-minimalist):not(.theme-book)::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.08), transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    body:not(.theme-minimalist):not(.theme-book)::after {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(176, 38, 255, 0.08), transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .wrap {
+      max-width: 800px; /* Optimal reading width */
+      margin: 0 auto;
+      padding: 120px 24px 80px;
+    }
+
+    .doc {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 48px 56px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      font-size: 1.0625rem; /* 17px */
+      line-height: 1.75;
+    }
+    
+    @media (max-width: 768px) {
+      .doc { padding: 32px 24px; }
+    }
+
+    /* Typography */
+    .doc h1, .doc h2, .doc h3, .doc h4 {
+      margin-top: 2em;
+      margin-bottom: 0.8em;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    
+    .doc h1 {
+      font-size: 2.5rem;
+      margin-top: 0.5em;
+      letter-spacing: -0.02em;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 0.5em;
+    }
+    
+    body.theme-book .doc h1 { font-family: 'Merriweather', serif; }
+    
+    .doc h2 {
+      font-size: 1.75rem;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+    }
+    body.theme-book .doc h2 { color: var(--accent); }
+    body.theme-minimalist .doc h2 { color: var(--text); }
+
+    .doc h3 { font-size: 1.35rem; }
+    .doc h4 { font-size: 1.15rem; }
+
+    .doc p { margin-bottom: 1.5em; }
+
+    .doc blockquote {
+      margin: 2em 0;
+      padding: 16px 24px;
+      border-left: 4px solid var(--accent);
+      background: var(--code-bg);
+      border-radius: 8px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .doc ul, .doc ol {
+      margin-bottom: 1.5em;
+      padding-left: 1.5em;
+    }
+    .doc li { margin-bottom: 0.5em; }
+
+    .doc code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: var(--code-bg);
+      padding: 3px 6px;
+      border-radius: 6px;
+      color: var(--accent);
+      border: 1px solid var(--panel-border);
+    }
+    body.theme-minimalist code, body.theme-book code { color: var(--accent-2); }
+
+    .doc pre {
+      margin: 2em 0;
+      padding: 20px;
+      background: var(--code-bg);
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      overflow-x: auto;
+    }
+
+    .doc pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-size: 0.9em;
+      color: inherit;
+    }
+
+    .doc a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .doc a:hover { border-bottom-color: var(--accent); }
+
+    .doc hr {
+      border: 0;
+      border-top: 1px solid var(--panel-border);
+      margin: 3em 0;
+    }
+    
+    .doc img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      margin: 1em 0;
+    }
+
+    .top-note {
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--muted);
+      font-size: 0.875rem;
+      font-family: var(--font-mono);
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top-note">DOC VIEW · canonical source → <code id="canonical-path">content/selfware_demo.md</code></div>
+    <div class="doc" id="doc">Loading…</div>
+  </div>
+
+  <script src="../js/runtime.js?v=1"></script>
+  <script>
+    async function load() {
+      const el = document.getElementById('doc');
+      try {
+        const api = (window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content');
+        const res = await fetch(api, { cache: 'no-store' });
+        const data = await res.json();
+        const md = data && typeof data.content === 'string' ? data.content : '';
+        const cp = document.getElementById('canonical-path');
+        if (cp && data && typeof data.path === 'string') cp.textContent = data.path;
+        if (window.marked && marked.parse) {
+          el.innerHTML = marked.parse(md);
+        } else {
+          el.textContent = md;
+        }
+      } catch (e) {
+        el.innerHTML = '<h2>Error</h2><p>Failed to load content. Check console.</p>';
+        console.error(e);
+      }
+    }
+    load();
+  </script>
+
+  <script src="../js/view-switcher.js?v=5"></script>
+</body>
+</html>
