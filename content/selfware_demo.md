@@ -6,7 +6,7 @@
 
 Version: 0.1.0 (Draft)
 
-License (Optional): MIT — you MAY modify, redistribute, and create derivatives.
+License: MIT — you MAY modify, redistribute, and create derivatives.
 
 ---
 
@@ -26,7 +26,7 @@ License (Optional): MIT — you MAY modify, redistribute, and create derivatives
 - Selfware 协议文本的最终落点是根目录 `selfware.md`；本文件仅作为协议镜像与 demo 内容源。
 - 任何“更新文档/数据”的操作，都 MUST 写入 `content/`（本 demo 即写入本文件），并可回滚。
 
-对比传统软件：传统软件通常把“数据”和“逻辑/视图”分离，逻辑与视图由少数大厂通过闭源客户端/服务端掌控，从而实现对文件与生态的事实垄断。Selfware 通过 **数据 + 逻辑 + 视图** 在同一文件（或同一可分发包）内的可选实现，以及 **非中心化** 的运行/分发方式，从根本上移除任何单一主体对软件定义权的垄断。本协议本身也是一个可选项 MIT 协议，你可以任意修改、分发、创造。这是 Agent 时代 的统一文件协议，也是打破藩篱、进入新世界的开始。
+对比传统软件：传统软件通常把“数据”和“逻辑/视图”分离，逻辑与视图由少数大厂通过闭源客户端/服务端掌控，从而实现对文件与生态的事实垄断。Selfware 通过 **数据 + 逻辑 + 视图** 在同一文件（或同一可分发包）内的可选实现，以及 **非中心化** 的运行/分发方式，从根本上移除任何单一主体对软件定义权的垄断。本协议采用 MIT 许可，你可以任意修改、分发、创造。这是 Agent 时代 的统一文件协议，也是打破藩篱、进入新世界的开始。
 
 ---
 

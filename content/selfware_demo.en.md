@@ -6,7 +6,7 @@
 
 Version: 0.1.0 (Draft)
 
-License (Optional): MIT — you MAY modify, redistribute, and create derivatives.
+License: MIT — you MAY modify, redistribute, and create derivatives.
 
 > NOTE (demo convention):
 > - This file is the **Canonical Data** for the English variant of this demo.

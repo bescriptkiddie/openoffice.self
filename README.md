@@ -46,3 +46,7 @@ python server.py pack ./OpenOffice.self --yes
 - Localhost only (`127.0.0.1`)
 - Write scope limited to `content/`
 - Explicit confirmation required for high-impact actions (pack/publish/pull-merge/apply updates)
+
+## License
+
+MIT. See `LICENSE`.

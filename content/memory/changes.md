@@ -336,3 +336,25 @@ summary: "Add repository README, remove fragmented v0.x snapshot protocol files,
 rollback_hint: "git revert HEAD"
 notes: "Current repository keeps a single current protocol line (`selfware.md` / `selfware.en.md`) without parallel v0.x snapshot files."
 ```
+
+---
+
+## id: chg-20260225-161055-license-mit
+
+```yaml
+id: "chg-20260225-161055-license-mit"
+timestamp: "2026-02-25T16:10:55Z"
+actor: "agent"
+intent: "set_protocol_license_mit"
+paths:
+  - "LICENSE"
+  - "README.md"
+  - "selfware.md"
+  - "selfware.en.md"
+  - "content/selfware_demo.md"
+  - "content/selfware_demo.en.md"
+  - "content/memory/changes.md"
+summary: "Set protocol and repository license to MIT explicitly: add LICENSE file and remove optional wording in protocol/demo documents."
+rollback_hint: "git revert HEAD"
+notes: "This change clarifies MIT as active license choice, not an optional placeholder."
+```

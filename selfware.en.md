@@ -6,7 +6,7 @@
 
 Version: 0.1.0 (Draft)
 
-License (Optional): MIT — you MAY modify, redistribute, and create derivatives.
+License: MIT — you MAY modify, redistribute, and create derivatives.
 
 > Translation note (Non‑Normative): This file is an English translation of `selfware.md`. The authoritative protocol source is `selfware.md`. If there is any discrepancy, `selfware.md` prevails.
 
@@ -24,7 +24,7 @@ This file (`selfware.md`) is the only authoritative source of the **Selfware pro
 - Any “protocol update” operation MUST land as changes to `selfware.md` (and MUST be rollbackable).
 - Any “document/data update” operation MUST land in the instance’s Canonical Data scope (in this demo: `content/`), not by writing into `selfware.md`.
 
-Compared to traditional software: traditional software usually separates “data” and “logic/view”, where logic and view are controlled by a small number of vendors via closed clients/services, creating a de‑facto monopoly over files and ecosystems. Selfware removes this monopoly by allowing **data + logic + views** to optionally live in the same file (or the same distributable package) and by enabling **decentralized** running and distribution. The protocol itself is optionally MIT‑licensed: you can modify, redistribute, and create derivatives. This is a unified file protocol for the Agent era.
+Compared to traditional software: traditional software usually separates “data” and “logic/view”, where logic and view are controlled by a small number of vendors via closed clients/services, creating a de‑facto monopoly over files and ecosystems. Selfware removes this monopoly by allowing **data + logic + views** to optionally live in the same file (or the same distributable package) and by enabling **decentralized** running and distribution. The protocol is MIT-licensed: you can modify, redistribute, and create derivatives. This is a unified file protocol for the Agent era.
 
 ---
 
