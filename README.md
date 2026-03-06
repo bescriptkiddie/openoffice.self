@@ -19,13 +19,23 @@ Historic `v0.x` snapshot files are intentionally removed to avoid fragmented ver
 
 ## Quick Start
 
+1. Clone this repository into your agent's working directory.
+2. Ask your agent to run the project:
+
+   > Run open-office.self for me.
+
+The agent will start the local runtime and open the interactive views in your browser.
+
+<details>
+<summary>Manual setup (Python details)</summary>
+
+**Requirements:** Python 3 (standard library only, zero dependencies).
+
 ```bash
 python server.py
 ```
 
-Open:
-
-- `http://127.0.0.1:8000/`
+Open `http://127.0.0.1:8000/`.
 
 If port `8000` is occupied, the runtime will pick the next free local port.
 You can also set a fixed port:
@@ -33,6 +43,8 @@ You can also set a fixed port:
 ```bash
 SELFWARE_PORT=8001 python server.py
 ```
+
+</details>
 
 ## Pack to `.self`
 
