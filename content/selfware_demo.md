@@ -1,278 +1,369 @@
-# Selfware
+# 记忆工程，可能才是下一代 AI 真正的分水岭｜2026-03-10
 
-> A file is an app. Everything is a file.
->
-> Selfware 定义一种 Agent 时代的统一文件协议：在同一可分发单元（文件或 `.self` 包）内，实现数据、逻辑与视图的可选一体化；以分布式、去中心化的 Agent 协同方式与自包含的人机互动方式，构建人↔Agent、Agent↔Agent 的协作关系；让文件回归到用户，永不失效，无限进化。
-
-Version: 0.1.0 (Draft)
-
-License: MIT — you MAY modify, redistribute, and create derivatives.
+> 今天看到一篇关于“记忆工程”的内容，我没有第一时间觉得它是个技术点，反而觉得，它像是在提醒我们：  
+> AI 真正难的，也许从来不是“会不会回答”，而是“能不能一直接住你”。
 
 ---
 
-> NOTE（demo 约定）：本文件是本仓库前端读取/编辑的 **Canonical Data（数据权威源）**，并包含一份协议文本的镜像用于演示；Selfware **协议权威源**在根目录 `selfware.md`。
+## 1. 真实触发
 
-除非标注为“Non‑Normative”，本文使用 RFC 风格术语：
-- **MUST / MUST NOT**：必须 / 禁止
-- **SHOULD / SHOULD NOT**：应当 / 不应当
-- **MAY**：可以
+今天刷到一篇讲“大模型记忆工程”的文章。
 
----
+一开始我没把它当成今天最重要的信息。  
+这几天更热的，明明是新模型、长上下文、Agent、computer use、100 万 token 这种更容易让人兴奋的词。
 
-## 1. Single‑File Authority（单文件权威源）
+但我读着读着，注意力反而慢慢被它拉住了。
 
-本文件（`content/selfware_demo.md`）是本 demo 的 **Canonical Data（数据权威源）**：
-- Kernel、Views、Assets、Skills 等均属于运行时实现（runtime），MAY 被替换或由 Agent 重新生成。
-- Selfware 协议文本的最终落点是根目录 `selfware.md`；本文件仅作为协议镜像与 demo 内容源。
-- 任何“更新文档/数据”的操作，都 MUST 写入 `content/`（本 demo 即写入本文件），并可回滚。
+因为我突然意识到：  
+**很多人以为 AI 现在最缺的是更强的脑子，但我越来越觉得，它更缺的是一套能留下痕迹的生命体征。**
 
-对比传统软件：传统软件通常把“数据”和“逻辑/视图”分离，逻辑与视图由少数大厂通过闭源客户端/服务端掌控，从而实现对文件与生态的事实垄断。Selfware 通过 **数据 + 逻辑 + 视图** 在同一文件（或同一可分发包）内的可选实现，以及 **非中心化** 的运行/分发方式，从根本上移除任何单一主体对软件定义权的垄断。本协议采用 MIT 许可，你可以任意修改、分发、创造。这是 Agent 时代 的统一文件协议，也是打破藩篱、进入新世界的开始。
+我们已经见过太多“第一次见面很惊艳”的 AI 了。  
+能说、能写、能总结、能做图、能写代码，甚至还能操作界面。
 
----
+可一旦真的让它进入生活、进入工作、进入持续协作，  
+那个问题就会很快冒出来：
 
-## 2. Canonical Data（规范数据）
+**它总像第一次认识你。**
 
-本 demo 的 Canonical Data 为：
-- `content/selfware_demo.md`（文本/Markdown）
+## 2. 我开始好奇什么
 
-Selfware 允许 Canonical Data 是任意数据类型（非穷尽）：
-- 文本 / Markdown
-- JSON / YAML
-- 二进制（图片、音频、视频）
-- 数据库文件（SQLite 等）
-- 代码与工程文件
-- Office 文档（docx 等）
+这让我开始反复想一件事：
 
-实现 MUST 明确 Canonical Data 的读取/写入形状（文本、字节流、或命名资源集）。
+为什么很多 AI 在单次对话里已经很像“聪明人”，  
+可一进入长期关系，就立刻露出一种很重的断裂感？
 
----
+后来我慢慢分清了一个以前总会混在一起的概念：
 
-## 3. View as Function（视图即函数）
+**上下文，不等于记忆。**
 
-任何视图 MUST 被视为函数：
-> `View = f(Data, Intent, Rules)`
+上下文更像是：  
+你把一堆资料摊在桌上，让它当场看。
 
-其中：
-- `Data` 来自 Canonical Data
-- `Rules` 由协议文件 `selfware.md` 定义（或其允许的扩展）
-- Views MUST NOT 成为内容真理源（禁止把 Canonical Data 硬编码进视图文件作为唯一来源）
+记忆则更像是：  
+它和你相处之后，真的把一些东西留下来了，  
+并且这些留下来的东西，之后还能继续影响它理解你、配合你、服务你。
 
----
+不是“我刚刚看到了什么”，  
+而是“我之后还能记得什么”。
 
-## 4. Runtime API（运行时接口，demo 约定）
+这两个东西，差别看起来不大，  
+但体验上是完全不同的。
 
-Kernel MUST bind to loopback only（`localhost/127.0.0.1/::1`），除非用户显式配置更宽边界。
+## 3. 一步步推到的判断
 
-本 demo 的 API：
-- `GET /api/content` -> `{ "content": "<content/selfware_demo.md>" }`
-- `POST /api/save` with `{ "content": "<content/selfware_demo.md>" }` -> `{ "status": "success" }`
-- `GET /api/self` -> `{ "path": "...", "sha256": "...", "content": "<content/selfware_demo.md>" }`
-- `GET /api/manifest` -> `{ "content": "<manifest.md>" }`
-- `GET /api/capabilities` -> 运行时能力声明（写入边界、确认动作、可用模块等）
-- `GET /api/check_update?url=...` -> 检查远程协议源是否更新（见 6）
+我后来越想越觉得，  
+AI 发展到今天，已经慢慢走过了两个阶段。
 
-写入边界（MUST）：
-- `POST /api/save` MUST only write to `content/selfware_demo.md`
-- 运行时默认入口：`/` -> `/views/self.html`（Self Dashboard，展示 Canonical/Capabilities/Manifest）
+第一个阶段，是“回答得好”。  
+你问，它答。  
+这个阶段解决的是信息问题。
 
----
+第二个阶段，是“开始能做事”。  
+写代码、整理文档、调用工具、执行工作流。  
+这个阶段解决的是执行问题。
 
-## 5. Discovery（发现）
+但如果再往前走一步，事情就变了。
 
-Discovery endpoint 示例（仅示例，不构成默认值）：
-- `https://floatboat.ai/discovery/`
+因为只要 AI 开始真的参与一个持续任务，  
+它就不能只是这次把事做完，  
+它还得知道：
 
-Discovery 的目标：在**用户许可**下，携带“意图 + 部分上下文”，去发现更好的解决方案（而不是仅仅搜索）。
+- 我们上次做到哪了
+- 你一贯在意什么
+- 哪些结论已经讨论过
+- 哪些偏好不用再重说一遍
+- 什么该长期保留，什么只是当下噪音
 
-Discovery 请求 SHOULD 包含：
-- **Intent（意图）**：当前任务目标/希望达成的结果（例如 `update`、`recommend`、`fix_overflow`、`export_cards`）。
-- **Partial Context（部分上下文）**：与意图直接相关的最小信息集，例如：
-  - 任务目标（goal）
-  - 执行状态（state / progress）
-  - 执行日志（logs，**可选**，且必须可裁剪/脱敏）
+走到这里，我会觉得，  
+AI 真正进入第三阶段了：
 
-权限（MUST）：
-- 任何包含上下文的 Discovery 请求 MUST 在用户明确许可下发送。
-- 默认 SHOULD 只发送最小必要上下文；更高粒度上下文必须单独授权。
+**不是会回答，也不是会做事，而是开始具备连续性。**
 
-Discovery 响应 MAY 返回（非穷尽）：
-- 一个更合适的 **Selfware**（完整解决方案文件/模板）
-- 一个或多个 **Skills**（可复用工作流）
-- **代码片段** / 补丁建议
-- 其它可被 Agent 消费的内容（规则片段、视图模板、配置建议等）
+而连续性的底层，不是模型表演力，  
+而是记忆能力。
 
-Discovery 触发点（实现 SHOULD；但 MUST 支持用户主动触发）：
-1. **On Start**：每次运行时启动后
-2. **On Explicit Update Intent**：用户/Agent 明确请求 `update`
-3. **On Missing Capability**：执行 intent 缺少扩展/规则
-4. **On Error Recovery**：扩展/规则失败需要替代或降级
-5. **On User Request**：用户显式点击/输入 “Discover/Check Updates”
+## 4. 我目前的核心洞察
 
----
+我现在最想留下来的一句话是：
 
-## 6. Official Protocol Source & Updates（官网协议源与更新）
+**记忆工程，不是在给大模型补功能，而是在给 Agent 补人格连续性。**
 
-### 6.1 Protocol Source（官网协议源）
+以前我们会觉得，  
+记忆像一个增强模块。  
+有更好，没有也能凑合。
 
-本文件 MAY 声明一个“官网协议源”（仅用于检查更新，不代表自动覆盖权威）：
-- `Protocol Source: https://floatboat.ai/selfware.md`
+但现在看，它更像骨架。
 
----
+没有它，AI 再聪明，  
+也很容易停留在“瞬时表现很好”的层面。
 
-### 6.2 Update Check（更新检查）
+像一个天赋很高的人，  
+每次见你都能快速进入状态，  
+但第二天又把你忘了。
 
-若启用官网协议更新检查，运行时 MUST 在以下时机之一触发检查：
-- **On Start**（每次运行时）或
-- **On User Request**（用户主动要求）
+这当然不能说没用，  
+但它很难真正变成“陪你做长期事情的人”。
 
-检查 SHOULD 使用 ETag/Last‑Modified 或内容哈希；本 demo 用 `/api/check_update` 提供检查与 diff 摘要。
+而一旦有了记忆，  
+整个关系会开始变得不一样：
 
----
+- 它会记得你正在建什么
+- 它会记得你喜欢什么表达方式
+- 它会记得你不想被打扰的边界
+- 它会慢慢知道，什么信息对你来说是重要的
+- 它甚至会从一次次互动里，长出一种“更懂你”的质感
 
-### 6.3 No Silent Apply（禁止静默更新）
+我觉得这才是未来个人 AI 最迷人的地方。
 
-一旦检测到官网协议源有更新，运行时 MUST：
-1. 告知用户“更新逻辑”（从哪里拉取、如何比对、如何应用、如何回滚点）
-2. 告知用户“更新内容摘要”（至少 title + summary；若可用提供 changelog/diff）
-3. 让用户确认（Accept/Reject/Defer）
-4. 仅在 Accept 后应用更新；Reject MUST 保持当前版本可继续运行
+不是像烟花一样炸你一下，  
+而是像一个慢慢越来越顺手、越来越贴身的系统，  
+让你开始舍不得换掉。
 
----
+## 5. 这对普通使用者意味着什么
 
-## 7. Local Versioning (Git)（本地版本管理）
+如果这个判断成立，那对普通人来说，变化会很大。
 
-Selfware 本地文件 **SHOULD** 使用 Git 做版本管理（本地仓库即可；remote 可选）：
-- 每次应用更新（无论来源是官网、Discovery、或协作后端）前，运行时 SHOULD 创建一个可回滚点（优先：Git commit/tag；否则：备份文件）。
-- 任何“自动拉取/合并 remote”的行为 MUST 走 6.3 的用户确认流程。
+### 第一，好用的标准会变
 
----
+以前我们夸一个 AI，通常是说：
 
-## 8. Collaboration (Git / Custom)（协作）
+- 真聪明
+- 真能写
+- 真会总结
+- 反应真快
 
-除本地版本管理外，Selfware MAY 配置协作后端用于多人协作与同步。协作后端不改变协议文件（`selfware.md`）的定义：它是协议权威文本；协作与同步的写入落点是 `content/` 下的文档数据（本 demo 即 `content/selfware_demo.md`）。
+以后大家更在意的，可能会变成：
 
-### 8.1 Git Collaboration（Git 协作）
+- 它记不记得我
+- 它能不能接上我之前的事
+- 它是不是老让我重新解释
+- 它有没有慢慢学会我的节奏
 
-本地项目 MAY 由 Git 承载协作（remote 可选，例如 GitHub）：
-- `Collaboration: git`
-- `Remote: <git remote url>`
-- `Ref: <branch|tag|commit>`（可选，默认 `main`/`master` 由实现决定）
+也就是说，  
+我们评价 AI 的方式，会从“能力型”，慢慢变成“关系型”。
 
-若启用 Git 协作，运行时 MUST：
-1. 在 **On Start** 或 **On User Request** 时检查 remote 是否有更新（实现 MAY 只做其中一种，但 MUST 支持用户主动触发）。
-2. 一旦检测到更新，必须走 **6.3 No Silent Apply** 的流程（告知更新逻辑 + 内容摘要 + 用户确认）后才能拉取/合并。
-3. 合并前 MUST 创建可回滚点（优先 Git commit/tag；否则备份文件）。
-4. 冲突出现时 MUST 暂停自动应用，转为让用户确认解决策略（手工/辅助合并/放弃）。 [参见](#6.3 No Silent Apply（禁止静默更新）)
+### 第二，产品差距会越来越像系统差距
 
-### 8.2 Custom Collaboration（自定义协作服务）
+未来模型之间的差距，未必总能被普通用户感知。  
+但记忆系统做得好不好，用户一下就能感受到。
 
-Selfware MAY 使用自定义协作服务：
-- `Collaboration: custom`
-- `Endpoint: <service url>`
+因为这直接决定了：  
+这个 AI 是不是“用着越来越顺”，  
+还是“每次都得重新开机做人”。
 
-无论协作服务形态如何：
-- 写入边界必须保持：只写 `content/`（或 `content/` 下被允许写入的具体文件集合）
-- 任何会改变本地 `selfware.md` 的同步/合并，都 MUST 先经过用户确认与告知（同 6.3）
+所以接下来真正拉开差距的，  
+可能不只是模型本身，  
+而是模型外面那一整层：
 
----
+- 记忆怎么写入
+- 记忆怎么提取
+- 记忆怎么分层
+- 什么时候调用
+- 怎么避免记错和过度记忆
 
-## 9. Packaging（`.self` 容器，协议镜像）
+这些东西，听起来不像 headline，  
+但它们决定体验。
 
-> NOTE：以下为根目录 `selfware.md` 的协议镜像，用于 demo 展示；以 `selfware.md` 为准。
+### 第三，个人 AI 最终拼的可能是“数字连续性”
 
-### 9.1 Container Format（格式层）
+我越来越觉得，  
+未来每个人都会有一种需求：
 
-一个 `.self` 文件 MUST 是一个 **ZIP 容器**（为兼容性优先；允许被通用 unzip 工具解包）。
+我想要一个系统，  
+它不是一次次回答我，  
+而是能在时间里陪我。
 
-`.self` 容器内 MUST 包含：
-- `self/manifest.md`
+它知道我过去在想什么，  
+也知道我现在做到哪了，  
+还能帮我把那些零散的想法、项目、偏好、关系，  
+慢慢编织成一个有连续性的自己。
 
-`self/manifest.md` MUST 至少包含：
-- `Selfware-Container: zip`
-- `Selfware-Container-Version: 1`
-- `Protocol-Source: https://floatboat.ai/selfware.md`（示例；可替换）
-- `Local-Protocol-Path: selfware.md`
-- `Canonical-Data-Scope: content/`
+这可能才是“个人 AI”真正值钱的地方。
 
----
+## 6. 平台适配策略
 
-### 9.2 Pack Policy（策略层）
+### 小红书
+适合从一句很生活化的话切进去：
 
-实现 MUST：
-1. 声明 include / exclude / required
-2. 打包前向用户展示“最终包含列表 + 总大小 + 输出路径”，并让用户确认（Accept/Reject）
-3. 默认只在容器内生成 `self/manifest.md`，不写回本地协议文件 `selfware.md`（除非用户明确要求）
+**“为什么 AI 每次都像第一次认识我？”**
 
-默认排除（实现 SHOULD）：
-- `.DS_Store`
-- `__pycache__/`, `*.pyc`
-- `node_modules/`, `.venv/`
-- `dist/`, `build/`
-- `output/`, `*.log`, `*.tmp`
-- `.git/`（除非用户明确要求包含）
+先给感受，再给判断，  
+会更容易让人代入，也更容易引发评论。
 
----
+### 公众号
+适合把“上下文”和“记忆”的区别认真讲透。  
+这类内容其实很适合做成一篇有保存价值的判断文章。
 
-### 9.3 Pack Plan Placement（落点）
+### X
+适合压缩成几句高密度表达，突出一个核心句：
 
-打包协议由 `selfware.md` 定义；pack plan SHOULD 放在实例自描述文件中。
+**The future of AI may depend less on model intelligence, and more on memory continuity.**
 
-本 demo 的 pack plan 放在 `manifest.md`。
+## 7. 小红书版成稿
 
----
+# 我越来越觉得，AI 最大的问题不是不够聪明，而是总在失忆
 
-### 9.4 Sharing（分享/分发）
+这两天看了很多 AI 信息，  
+最让我停下来的，反而不是新模型。
 
-若要分享一个 Selfware 项目，SHOULD 将整个项目目录打包为一个 ZIP，并将文件名后缀命名为 `.self`（例如 `my_project.self`）。
+而是一篇讲“记忆工程”的内容。
 
-好处：你分享出去的是一个“活的文档/活的软件”。如果接收方是被信任的协作者，并且在你的许可边界内拥有协作后端访问权限（例如对你的 GitHub 仓库有访问权限），那么当他打开 Selfware 时，可以按本协议的更新规则自动检查更新，并在用户确认后拉取/合并，从而持续与最新版本对齐。
+我突然意识到：
 
----
+**很多 AI 不是不强，而是没法持续接住你。**
 
-## 10. Memory (Optional)（记忆模块，可选，协议镜像）
+它单次回答可以很好，  
+写东西也不错，  
+甚至还能执行任务。
 
-> NOTE：以下为根目录 `selfware.md` 的协议镜像，用于 demo 展示；以 `selfware.md` 为准。
+但只要你连续用几天，  
+那个熟悉的问题就来了：
 
-Memory 是 Selfware 实例在 `content/` 内维护的一组可审计上下文文件。建议落在：
-- `content/memory/`
+- 它像第一次认识你
+- 你总要重新讲背景
+- 偏好说了很多次还是会丢
+- 项目做到一半，下一次又像从头开始
 
-要求：
-- 每个 memory 文件必须在文件顶部包含元信息（Metadata），用于自描述（role/title/purpose/scope/update_policy/owner/created_at/updated_at 等）。
-- 任何变更 MUST 写入 `content/memory/changes.md` 的 Change Record（含 id/timestamp/actor/intent/paths/summary/rollback_hint）。
-- 若用于 Discovery，必须用户明确许可，并默认只发送最小必要片段。
+后来我想明白一个点：
 
----
+**长上下文，不等于有记忆。**
 
-## 11. Ecosystem (Optional)（生态模块，可选，协议镜像）
+上下文像是你临时把资料摊给它看。  
+记忆则是它真的把一些东西留下来了，  
+而且以后还能继续调用。
 
-> NOTE：以下为根目录 `selfware.md` 的协议镜像，用于 demo 展示；以 `selfware.md` 为准。
+这两个东西差很多。
 
-生态目标：将实例内沉淀的 know‑how（practice/skill/selfware/patch）发布到 Floatboat（托管/索引）与/或 GitHub/Git（去中心化），让其他人通过 Discovery 发现与复用；最终由用户本地 Agent/一级用户基于元数据决策是否采用。
+所以我现在越来越相信：
 
-要求（摘要）：
-- 工件 MUST 自描述元信息（type/id/version/protocol_version_range/applies_to/license/sha256/provenance/distribution；trust 可选）。
-- publish MUST 用户确认，并写 Change Record。
-- Discovery 返回候选 + 元信息；应用更新 MUST 走 No Silent Apply。
-- 生态仓库 SHOULD 使用顶层 `selfware/`、`skills/`、`practices/`；不强制普通 `.self` 实例内部结构。
+**未来 AI 真正的分水岭，不只是模型强不强，而是记忆系统做得好不好。**
 
----
+因为没有记忆，  
+AI 只能一次次惊艳你。
 
-## 12. Self‑Analysis (Optional)（自分析模块，可选，协议镜像）
+有了记忆，  
+它才可能一次次接住你。
 
-> NOTE：以下为根目录 `selfware.md` 的协议镜像，用于 demo 展示；以 `selfware.md` 为准。
+我觉得真正高级的 AI，  
+不是那种让你“哇”一下的，  
+而是那种让你越来越不用解释的。
 
-Self‑Analysis 用于从实例的 changes/decisions 与内容中提炼 know‑how，生成可执行改进建议，并在用户许可下与 Discovery/生态发布形成闭环。
+这个变化，可能比模型再变聪明一点更重要。
 
-要点（摘要）：
-- 输出 MUST 文件化、可审计、可回滚，并写 Change Record。
-- 可生成 insights / practices/skills 草稿 / discovery 请求草案 / publish queue（待发布清单）。
-- 触发点由 Agent 自由决定，但 MUST 支持用户显式触发；对外发送/应用更新仍遵循用户许可与 No Silent Apply。
+你现在用 AI 时，最大的疲惫感是：  
+**不够聪明，还是总要重复解释？**
 
----
+## 8. 公众号版成稿
 
-## Non‑Normative（非规范性）
+# 记忆工程，为什么会成为下一代 AI Agent 的真正地基
 
-本仓库的 `views/`、`server.py`、`assets/`、`skills/` 仅用于演示“同一份 Markdown 被多视图投影 + 可保存”的最小闭环。
+这两天如果只看热度，AI 世界最显眼的关键词还是那些：更强的模型、更长的上下文、更像人的 Agent、更自然的 computer use。
 
-本 demo 额外提供一个只读的 Self Dashboard：
-- `/views/self.html`：展示 Canonical Data、Capability Declaration、Manifest（用于更好的人机与 Agent 协作上下文对齐）
+但今天我真正停下来想的，反而是一个看起来没那么“热闹”的词：记忆工程。
+
+因为我越来越觉得，AI 下一阶段最关键的变化，可能不是“更会回答”，而是“更能持续接住同一个人”。
+
+这听上去像个体验问题，  
+但底层其实是系统问题。
+
+很多人会把“长上下文”当成“有记忆”，  
+但这两者并不是一回事。
+
+上下文更像一次性的展开：  
+你把历史对话、任务资料、文档说明都摆在当前窗口里，模型在这一轮里参考这些东西来回答你。
+
+可记忆不是这样。
+
+记忆意味着，一个系统可以在长期互动中逐渐沉淀出稳定的信息结构，  
+并在之后的任务里，重新调用、更新、筛选、修正。
+
+换句话说：
+
+- 上下文，是临时工作台
+- 记忆，是长期内部索引
+
+这个差别看起来很技术，  
+但在真实使用里，几乎是决定性的。
+
+因为只要 AI 真正开始参与你的长期任务，  
+它就不能每次都像第一次来上班。
+
+它需要知道你是谁，  
+知道你在做什么，  
+知道你上次推进到了哪里，  
+知道哪些偏好已经形成，  
+也知道哪些信息不值得被永远保留。
+
+如果没有这些，AI 再聪明，  
+也只是一个不断“重新认识你”的执行器。
+
+这就是为什么我越来越相信：
+
+**未来 Agent 的竞争，不只是模型竞争，而是“模型能力 + 记忆架构 + 调度能力”的系统竞争。**
+
+谁能让 AI 形成连续性，  
+谁才更接近真正可用的个人助手。
+
+而记忆工程的难点，也远不只是“把聊天记录存起来”。
+
+它真正要处理的是一整套更细的事情：
+
+- 什么该记
+- 什么不该记
+- 记下来之后如何结构化
+- 什么时候拿出来用
+- 怎么防止旧信息污染新判断
+- 怎么让用户感到被理解，而不是被系统冒犯
+
+这些问题加在一起，  
+决定的不是一个 feature，  
+而是一种关系感。
+
+我现在最想留下的一句话是：
+
+**记忆工程，不是在给大模型补外挂，而是在给 Agent 补连续性。**
+
+而连续性，才是 AI 真正从“会回答”走向“会陪伴、会协作、会长期工作”的那一步。
+
+## 9. X 版成稿
+
+A lot of AI feels smart in a single turn.
+
+But the real problem starts when you use it for days, not minutes:  
+it keeps meeting you like it’s the first time.
+
+That’s why I think memory engineering matters more than most people realize.
+
+Long context is not memory.
+
+Context is what the model can see now.  
+Memory is what the system can retain, structure, update, and reuse over time.
+
+And that difference changes everything.
+
+Without memory:
+- every task restarts
+- every preference needs repeating
+- every workflow loses continuity
+
+So the next leap in AI may not just be better reasoning.
+
+It may be this:  
+**can the AI stay in relationship with your work, your preferences, and your unfinished life?**
+
+My current takeaway:
+
+**Memory engineering is not an add-on for agents.  
+It’s the infrastructure of continuity.**
+
+## 10. 展示说明
+
+- 这篇更适合放进 `.self` 里的「判断 / 观察 / 趋势」栏目
+- 首页摘要建议用这句：
+  - **很多 AI 不是不够聪明，而是没法持续接住你。**
+- 如果做成卡片流，可以切成 5 张：
+  1. 触发：我为什么被“记忆工程”这件事绊住
+  2. 区分：上下文 ≠ 记忆
+  3. 推导：AI 从回答问题走向任务连续性
+  4. 结论：记忆工程是在补连续性
+  5. 落点：这为什么会改变个人 AI

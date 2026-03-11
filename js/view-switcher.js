@@ -1,9 +1,6 @@
 (function() {
     console.log("Selfware View Switcher v2 Loaded");
 
-    const disableGlobalEditor =
-        (document.documentElement && document.documentElement.dataset && document.documentElement.dataset.disableGlobalEditor === 'true') ||
-        (document.body && document.body.dataset && document.body.dataset.disableGlobalEditor === 'true');
 
     // --- CLEANUP LEGACY UI ---
     // Remove any existing theme-switcher elements that might be lingering
@@ -406,23 +403,23 @@
             transform: translateY(-1px);
         }
 
-        /* Editor Sidebar */
-        #global-editor-overlay {
+        /* Chat Panel */
+        #chat-panel-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.45);
             backdrop-filter: blur(4px);
             z-index: 99998;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
         }
-        #global-editor-overlay.active { opacity: 1; pointer-events: auto; }
+        #chat-panel-overlay.active { opacity: 1; pointer-events: auto; }
 
-        #global-editor-sidebar {
+        #chat-panel {
             position: fixed;
-            top: 0; right: -500px;
-            width: 500px;
+            top: 0; right: -420px;
+            width: 420px;
             max-width: 90vw;
             height: 100vh;
             background: #0f1115;
@@ -433,77 +430,200 @@
             flex-direction: column;
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        #global-editor-sidebar.open { right: 0; }
+        #chat-panel.open { right: 0; }
 
-        .global-editor-header {
-            padding: 20px 24px;
+        .chat-panel-header {
+            padding: 18px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: rgba(255,255,255,0.02);
+            flex-shrink: 0;
         }
-
-        .editor-title {
+        .chat-panel-title {
             font-size: 13px;
             font-weight: 700;
-            color: #666;
-            letter-spacing: 1.5px;
+            color: #8fdcff;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
         }
-
-        .editor-actions { display: flex; gap: 10px; }
-
-        #global-editor-textarea {
-            flex: 1;
+        #chat-panel-close {
             background: transparent;
             border: none;
-            color: #e0e6ed;
-            padding: 30px;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
-            white-space: pre-wrap;
-        }
-
-        #global-editor-textarea::selection { background: rgba(0, 240, 255, 0.2); }
-
-        #global-save-btn {
-            background: #00f0ff;
-            color: #000;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
+            color: #666;
+            font-size: 20px;
             cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        #global-save-btn:hover { box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); transform: translateY(-1px); }
-
-        #global-cancel-btn {
-            background: transparent;
-            color: #888;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-            padding: 8px 12px;
+            padding: 4px 8px;
+            line-height: 1;
             transition: color 0.2s;
         }
-        #global-cancel-btn:hover { color: #fff; }
+        #chat-panel-close:hover { color: #fff; }
 
-        #global-save-status {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            color: #00f0ff;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.5s;
-            pointer-events: none;
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+        .chat-msg {
+            max-width: 88%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(0,240,255,0.18), rgba(176,38,255,0.14));
+            border: 1px solid rgba(0,240,255,0.15);
+            color: #e0e6ed;
+        }
+        .chat-msg.user .chat-msg-selection {
+            display: block;
+            border-left: 2px solid rgba(0,240,255,0.5);
+            padding-left: 10px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-style: italic;
+            max-height: 60px;
+            overflow: hidden;
+        }
+        .chat-msg.ai {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #c8d0da;
+        }
+        .chat-msg.ai.error {
+            border-color: rgba(255,100,100,0.2);
+            color: #ffb4b4;
+        }
+        .chat-msg.thinking {
+            align-self: flex-start;
+            color: #8a94a6;
+            font-style: italic;
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+        }
+        .chat-msg.thinking::after {
+            content: '';
+            animation: dotPulse 1.2s infinite;
+        }
+        @keyframes dotPulse {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .chat-input-area {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 12px 14px 16px;
+            background: rgba(255,255,255,0.02);
+            flex-shrink: 0;
+        }
+        .chat-selection-quote {
+            display: none;
+            border-left: 3px solid #00f0ff;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            background: rgba(0,240,255,0.06);
+            border-radius: 0 8px 8px 0;
+            position: relative;
+        }
+        .chat-selection-quote.visible { display: block; }
+        .chat-selection-quote .quote-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #00f0ff;
+            margin-bottom: 4px;
+        }
+        .chat-selection-quote .quote-text {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+            max-height: 54px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .chat-selection-quote .quote-dismiss {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            padding: 2px 4px;
+        }
+        .chat-selection-quote .quote-dismiss:hover { color: #fff; }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        #chat-input {
+            flex: 1;
+            min-height: 40px;
+            max-height: 120px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.2);
+            color: #e0e6ed;
+            padding: 10px 14px;
+            font: inherit;
+            font-size: 13.5px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            overflow-y: auto;
+        }
+        #chat-input:focus { border-color: rgba(0,240,255,0.3); }
+        #chat-input::placeholder { color: #555; }
+        #chat-send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #00f0ff, #b026ff);
+            color: #071018;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        #chat-send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,240,255,0.3); }
+        #chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .chat-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .chat-empty-state .chat-empty-icon { font-size: 28px; margin-bottom: 12px; }
         /* --- Theme: Minimalist (Light) --- */
         body.theme-minimalist .top-left-controls { color: #111827 !important; }
         body.theme-minimalist .view-switcher-trigger { color: #111827 !important; text-shadow: none !important; }
@@ -563,23 +683,48 @@
             border-color: #9ca3af !important;
         }
 
-        body.theme-minimalist #global-editor-sidebar {
+        body.theme-minimalist #chat-panel {
             background: #ffffff !important;
             border-left: 1px solid #e5e7eb !important;
             box-shadow: -10px 0 25px rgba(0,0,0,0.1) !important;
         }
-        body.theme-minimalist .global-editor-header {
+        body.theme-minimalist .chat-panel-header {
             background: #f9fafb !important;
             border-bottom: 1px solid #e5e7eb !important;
         }
-        body.theme-minimalist .editor-title { color: #111827 !important; }
-        body.theme-minimalist #global-editor-textarea { color: #111827 !important; }
-        body.theme-minimalist #global-save-btn {
-            background: #0f172a !important;
-            color: #ffffff !important;
+        body.theme-minimalist .chat-panel-title { color: #2563eb !important; }
+        body.theme-minimalist #chat-panel-close { color: #9ca3af !important; }
+        body.theme-minimalist #chat-panel-close:hover { color: #111827 !important; }
+        body.theme-minimalist .chat-msg.user {
+            background: #eff6ff !important;
+            border-color: #bfdbfe !important;
+            color: #111827 !important;
         }
-        body.theme-minimalist #global-cancel-btn { color: #6b7280 !important; }
-        body.theme-minimalist #global-cancel-btn:hover { color: #111827 !important; }
+        body.theme-minimalist .chat-msg.user .chat-msg-selection { color: #6b7280 !important; border-left-color: #2563eb !important; }
+        body.theme-minimalist .chat-msg.ai {
+            background: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+            color: #374151 !important;
+        }
+        body.theme-minimalist .chat-msg.thinking { color: #9ca3af !important; }
+        body.theme-minimalist .chat-input-area { background: #f9fafb !important; border-top-color: #e5e7eb !important; }
+        body.theme-minimalist #chat-input {
+            background: #ffffff !important;
+            border-color: #d1d5db !important;
+            color: #111827 !important;
+        }
+        body.theme-minimalist #chat-input::placeholder { color: #9ca3af !important; }
+        body.theme-minimalist #chat-send-btn { background: linear-gradient(135deg, #2563eb, #7c3aed) !important; color: #fff !important; }
+        body.theme-minimalist .chat-selection-quote {
+            background: rgba(37,99,235,0.06) !important;
+            border-left-color: #2563eb !important;
+        }
+        body.theme-minimalist .chat-selection-quote .quote-label { color: #2563eb !important; }
+        body.theme-minimalist .chat-selection-quote .quote-text { color: #6b7280 !important; }
+        body.theme-minimalist .chat-selection-quote .quote-dismiss { color: #9ca3af !important; }
+        body.theme-minimalist .chat-selection-quote .quote-dismiss:hover { color: #374151 !important; }
+        body.theme-minimalist .chat-empty-state { color: #9ca3af !important; }
+        body.theme-minimalist .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1) !important; }
 
         /* --- Theme: Book (Serif) --- */
         body.theme-book .top-left-controls { color: #2c241b !important; font-family: 'Merriweather', serif !important; }
@@ -643,23 +788,49 @@
             border-color: #a0522d !important;
         }
 
-        body.theme-book #global-editor-sidebar {
+        body.theme-book #chat-panel {
             background: #fdfbf7 !important;
             border-left: 1px solid #e6e0d2 !important;
             box-shadow: -10px 0 30px rgba(44, 36, 27, 0.15) !important;
         }
-        body.theme-book .global-editor-header {
+        body.theme-book .chat-panel-header {
             background: #f9f6ef !important;
             border-bottom: 1px solid #e6e0d2 !important;
         }
-        body.theme-book .editor-title { color: #2c241b !important; font-family: 'Merriweather', serif !important; }
-        body.theme-book #global-editor-textarea { color: #2c241b !important; font-family: 'Merriweather', serif !important; }
-        body.theme-book #global-save-btn {
-            background: #a0522d !important;
-            color: #fff !important;
+        body.theme-book .chat-panel-title { color: #a0522d !important; font-family: 'Merriweather', serif !important; }
+        body.theme-book #chat-panel-close { color: #8b4513 !important; }
+        body.theme-book #chat-panel-close:hover { color: #2c241b !important; }
+        body.theme-book .chat-msg.user {
+            background: rgba(160,82,45,0.1) !important;
+            border-color: rgba(160,82,45,0.15) !important;
+            color: #2c241b !important;
         }
-        body.theme-book #global-cancel-btn { color: #8b4513 !important; }
-        body.theme-book #global-cancel-btn:hover { color: #5d2b1d !important; }
+        body.theme-book .chat-msg.user .chat-msg-selection { color: #5d5446 !important; border-left-color: #a0522d !important; }
+        body.theme-book .chat-msg.ai {
+            background: #f5f1e8 !important;
+            border-color: #e6e0d2 !important;
+            color: #2c241b !important;
+        }
+        body.theme-book .chat-msg.thinking { color: #8b4513 !important; }
+        body.theme-book .chat-input-area { background: #f9f6ef !important; border-top-color: #e6e0d2 !important; }
+        body.theme-book #chat-input {
+            background: #fdfbf7 !important;
+            border-color: #e6e0d2 !important;
+            color: #2c241b !important;
+            font-family: 'Merriweather', serif !important;
+        }
+        body.theme-book #chat-input::placeholder { color: #a08060 !important; }
+        body.theme-book #chat-send-btn { background: linear-gradient(135deg, #a0522d, #8b4513) !important; color: #fff !important; }
+        body.theme-book .chat-selection-quote {
+            background: rgba(160,82,45,0.06) !important;
+            border-left-color: #a0522d !important;
+        }
+        body.theme-book .chat-selection-quote .quote-label { color: #a0522d !important; }
+        body.theme-book .chat-selection-quote .quote-text { color: #5d5446 !important; font-family: 'Merriweather', serif !important; }
+        body.theme-book .chat-selection-quote .quote-dismiss { color: #8b4513 !important; }
+        body.theme-book .chat-empty-state { color: #a08060 !important; font-family: 'Merriweather', serif !important; }
+        body.theme-book .chat-msg { font-family: 'Merriweather', serif !important; }
+        body.theme-book .chat-messages::-webkit-scrollbar-thumb { background: rgba(160,82,45,0.15) !important; }
 
         /* --- Global Toast --- */
         #audp-global-toast {
@@ -784,51 +955,56 @@
         });
     }
 
-    // D/E. Global Actions + Editor (optional)
-    if (!disableGlobalEditor) {
-        // D. Global Actions (Top Right)
+    // D/E. Global Actions + Chat Panel (always injected)
+    {
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'view-actions-container';
         const t = (k, f) => (window.selfwareT ? window.selfwareT(k, f) : (f || k));
         actionsContainer.innerHTML = `
-            <button class="action-btn" id="global-edit-btn">
-                ${t('global.edit_source', 'Edit Source')}
+            <button class="action-btn" id="chat-panel-toggle">
+                ✨ AI Edit
             </button>
         `;
 
-        if (document.body) {
-            document.body.appendChild(actionsContainer);
-        } else {
-            window.addEventListener('DOMContentLoaded', () => {
-                document.body.appendChild(actionsContainer);
-            });
-        }
-
-        // E. Global Editor
-        const editorHtml = `
-            <div id="global-editor-overlay"></div>
-            <div id="global-editor-sidebar">
-                <div class="global-editor-header">
-                    <span class="editor-title">${t('global.source_markdown', 'SOURCE // MARKDOWN')}</span>
-                    <div class="editor-actions">
-                        <button id="global-cancel-btn">${t('global.close', 'Close')}</button>
-                        <button id="global-save-btn">${t('global.save_changes', 'Save Changes')}</button>
+        const chatHtml = `
+            <div id="chat-panel-overlay"></div>
+            <div id="chat-panel">
+                <div class="chat-panel-header">
+                    <span class="chat-panel-title">AI // SELFWARE EDIT</span>
+                    <button id="chat-panel-close">×</button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-empty-state">
+                        <div class="chat-empty-icon">✨</div>
+                        选中文章中的文字，或直接输入指令<br>让 AI 按 Selfware 协议修改文档
                     </div>
                 </div>
-                <textarea id="global-editor-textarea" spellcheck="false"></textarea>
-                <div id="global-save-status"></div>
+                <div class="chat-input-area">
+                    <div class="chat-selection-quote" id="chat-selection-quote">
+                        <div class="quote-label">选中文本</div>
+                        <div class="quote-text" id="chat-quote-text"></div>
+                        <button class="quote-dismiss" id="chat-quote-dismiss">×</button>
+                    </div>
+                    <div class="chat-input-row">
+                        <textarea id="chat-input" rows="1" spellcheck="false" placeholder="输入编辑指令…"></textarea>
+                        <button id="chat-send-btn">↑</button>
+                    </div>
+                </div>
             </div>
         `;
-        const editorContainer = document.createElement('div');
-        editorContainer.innerHTML = editorHtml;
 
-        if (document.body) {
-            document.body.appendChild(editorContainer);
-        } else {
-            window.addEventListener('DOMContentLoaded', () => {
-                document.body.appendChild(editorContainer);
-            });
+        const chatContainer = document.createElement('div');
+        chatContainer.innerHTML = chatHtml;
+
+        function safeAppend(el) {
+            if (document.body) {
+                document.body.appendChild(el);
+            } else {
+                window.addEventListener('DOMContentLoaded', () => document.body.appendChild(el), { once: true });
+            }
         }
+        safeAppend(actionsContainer);
+        safeAppend(chatContainer);
     }
 
     // Global toast (used for "Edit Source" save feedback in every view)
@@ -927,83 +1103,205 @@
         });
     });
 
-    // 5. Global Editor Logic (optional)
-    if (!disableGlobalEditor) {
-        const editBtn = document.getElementById('global-edit-btn');
-        const sidebar = document.getElementById('global-editor-sidebar');
-        const overlay = document.getElementById('global-editor-overlay');
-        const cancelBtn = document.getElementById('global-cancel-btn');
-        const saveBtn = document.getElementById('global-save-btn');
-        const textarea = document.getElementById('global-editor-textarea');
+    // 5. Chat Panel Logic
+    {
+        const panel = document.getElementById('chat-panel');
+        const overlay = document.getElementById('chat-panel-overlay');
+        const toggleBtn = document.getElementById('chat-panel-toggle');
+        const closeBtn = document.getElementById('chat-panel-close');
+        const messagesEl = document.getElementById('chat-messages');
+        const inputEl = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('chat-send-btn');
+        const quoteEl = document.getElementById('chat-selection-quote');
+        const quoteText = document.getElementById('chat-quote-text');
+        const quoteDismiss = document.getElementById('chat-quote-dismiss');
 
-        function openEditor() {
-            if (sidebar && overlay) {
-                sidebar.classList.add('open');
-                overlay.classList.add('active');
+        let currentSelection = '';
+        const chatMessages = [];
 
-                // Fetch Content
-                fetch(withLang('/api/content'))
-                    .then(res => res.json())
-                    .then(data => {
-                        if (textarea) textarea.value = data.content;
-                    })
-                    .catch(err => {
-                        console.error("Error loading content", err);
-                        if (textarea) textarea.value = "# Error loading content";
-                    });
+        function openChatPanel() {
+            if (panel) panel.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+            if (inputEl) inputEl.focus();
+        }
+
+        function closeChatPanel() {
+            if (panel) panel.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function setSelection(text) {
+            currentSelection = (text || '').trim();
+            if (currentSelection && quoteEl && quoteText) {
+                quoteText.textContent = currentSelection;
+                quoteEl.classList.add('visible');
+            } else {
+                clearSelection();
             }
         }
 
-        function closeEditor() {
-            if (sidebar && overlay) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
+        function clearSelection() {
+            currentSelection = '';
+            if (quoteEl) quoteEl.classList.remove('visible');
+            if (quoteText) quoteText.textContent = '';
+        }
+
+        function autoGrowInput() {
+            if (!inputEl) return;
+            inputEl.style.height = 'auto';
+            inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+        }
+
+        function scrollToBottom() {
+            if (messagesEl) {
+                requestAnimationFrame(() => {
+                    messagesEl.scrollTop = messagesEl.scrollHeight;
+                });
             }
         }
 
-        function saveContent() {
-            if (!textarea) return;
-            const content = textarea.value;
-            const originalText = saveBtn.innerText;
-            saveBtn.innerText = t('global.saving', "Saving...");
+        function clearEmptyState() {
+            const empty = messagesEl && messagesEl.querySelector('.chat-empty-state');
+            if (empty) empty.remove();
+        }
 
-            fetch(withLang('/api/save'), {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ content: content, lang: (window.selfwareLang || 'zh') })
-            })
-            .then(res => {
-                if(res.ok) {
-                    saveBtn.innerText = "Saved!";
-                    setTimeout(() => saveBtn.innerText = originalText, 1500);
-                    window.dispatchEvent(new CustomEvent('audp-content-updated', { detail: content }));
-                    showGlobalToast(t('global.saved_source', 'Saved source'));
+        function addMessage(role, text, selection) {
+            clearEmptyState();
+            const msg = document.createElement('div');
+            msg.className = 'chat-msg ' + role;
+            if (role === 'user' && selection) {
+                const selEl = document.createElement('span');
+                selEl.className = 'chat-msg-selection';
+                selEl.textContent = selection.length > 120 ? selection.slice(0, 120) + '\u2026' : selection;
+                msg.appendChild(selEl);
+            }
+            const textNode = document.createTextNode(text);
+            msg.appendChild(textNode);
+            if (messagesEl) messagesEl.appendChild(msg);
+            chatMessages.push({ role, text, selection: selection || '' });
+            scrollToBottom();
+            return msg;
+        }
+
+        function addThinking() {
+            clearEmptyState();
+            const msg = document.createElement('div');
+            msg.className = 'chat-msg thinking';
+            msg.id = 'chat-thinking';
+            msg.textContent = 'AI \u6b63\u5728\u6309 Selfware \u534f\u8bae\u4fee\u6539';
+            if (messagesEl) messagesEl.appendChild(msg);
+            scrollToBottom();
+            return msg;
+        }
+
+        function removeThinking() {
+            const el = document.getElementById('chat-thinking');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            if (!inputEl) return;
+            const instruction = inputEl.value.trim();
+            if (!instruction) return;
+
+            const selection = currentSelection;
+            addMessage('user', instruction, selection);
+            inputEl.value = '';
+            autoGrowInput();
+            clearSelection();
+
+            sendBtn.disabled = true;
+            addThinking();
+
+            try {
+                const res = await fetch(withLang('/api/chat_edit'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        instruction: instruction,
+                        selection: selection,
+                        lang: (window.selfwareLang || 'zh'),
+                        history: chatMessages.map(m => ({ role: m.role === 'ai' ? 'assistant' : m.role, text: m.text })),
+                    }),
+                });
+                removeThinking();
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(errText || ('HTTP ' + res.status));
+                }
+
+                const data = await res.json();
+                if (typeof data.content === 'string') {
+                    window.dispatchEvent(new CustomEvent('audp-content-updated', { detail: data.content }));
+                    const reply = data.reply || '✅ 已应用修改';
+                    addMessage('ai', reply);
+                    showGlobalToast('AI edit applied');
                 } else {
-                    saveBtn.innerText = "Error";
-                    showGlobalToast(t('global.save_failed', 'Save failed'));
+                    addMessage('ai', '⚠️ 模型返回了意外的格式');
                 }
-            })
-            .catch(err => {
+            } catch (err) {
+                removeThinking();
+                const errMsg = document.createElement('div');
+                errMsg.className = 'chat-msg ai error';
+                errMsg.textContent = '\u274c ' + (err.message || '\u8bf7\u6c42\u5931\u8d25');
+                if (messagesEl) messagesEl.appendChild(errMsg);
+                scrollToBottom();
+                showGlobalToast('AI edit failed');
                 console.error(err);
-                saveBtn.innerText = "Error";
-                showGlobalToast(t('global.save_failed', 'Save failed'));
-            });
+            } finally {
+                sendBtn.disabled = false;
+                if (inputEl) inputEl.focus();
+            }
         }
 
-        if (editBtn) editBtn.addEventListener('click', openEditor);
-        if (cancelBtn) cancelBtn.addEventListener('click', closeEditor);
-        if (overlay) overlay.addEventListener('click', closeEditor);
-        if (saveBtn) saveBtn.addEventListener('click', saveContent);
+        // Event listeners
+        if (toggleBtn) toggleBtn.addEventListener('click', openChatPanel);
+        if (closeBtn) closeBtn.addEventListener('click', closeChatPanel);
+        if (overlay) overlay.addEventListener('click', closeChatPanel);
+        if (quoteDismiss) quoteDismiss.addEventListener('click', clearSelection);
+        if (sendBtn) sendBtn.addEventListener('click', sendMessage);
 
-        // Keyboard Shortcut (Cmd/Ctrl + S in editor)
-        if (textarea) {
-            textarea.addEventListener('keydown', (e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        if (inputEl) {
+            inputEl.addEventListener('input', autoGrowInput);
+            inputEl.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                     e.preventDefault();
-                    saveContent();
+                    sendMessage();
                 }
             });
         }
+
+        // Text Selection Detection
+        let selectionDebounce = null;
+        document.addEventListener('mouseup', () => {
+            clearTimeout(selectionDebounce);
+            selectionDebounce = setTimeout(() => {
+                const sel = window.getSelection();
+                if (!sel || sel.isCollapsed) return;
+                const text = sel.toString().trim();
+                if (!text) return;
+
+                // Ignore selections inside the chat panel itself
+                const anchor = sel.anchorNode;
+                const focus = sel.focusNode;
+                const panelEl = document.getElementById('chat-panel');
+                if (panelEl && (panelEl.contains(anchor) || panelEl.contains(focus))) return;
+
+                setSelection(text);
+                // Auto-open chat panel when text is selected
+                if (panel && !panel.classList.contains('open')) {
+                    openChatPanel();
+                }
+            }, 150);
+        });
+
+        // Keyboard shortcut: Escape to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && panel && panel.classList.contains('open')) {
+                closeChatPanel();
+            }
+        });
     }
 
 })();

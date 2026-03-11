@@ -409,6 +409,14 @@ body.theme-book .orb { display: none !important; }
                 container.innerHTML = '<div class="slide active"><h1>Error loading content</h1><p>Please check the console.</p></div>';
             });
 
+        // Re-render when chat edit updates content
+        window.addEventListener('audp-content-updated', (e) => {
+            if (e.detail) {
+                renderSlides(e.detail);
+                initSlides();
+            }
+        });
+
         function renderSlides(markdown) {
             // Split markdown by headers (H1 or H2)
             // Strategy: 

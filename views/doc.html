@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <title>Doc View - Selfware</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
-      /* Default Dark Theme (Matches self.html / card.html) */
       --bg: #1a1e23;
       --panel: rgba(255, 255, 255, 0.05);
       --panel-border: rgba(255, 255, 255, 0.08);
@@ -19,13 +17,11 @@
       --code-bg: rgba(0, 0, 0, 0.3);
       --border: rgba(255, 255, 255, 0.1);
       --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-      
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
       --radius: 16px;
     }
 
-    /* Minimalist (Light) Theme Override */
     body.theme-minimalist {
       --bg: #f3f4f6;
       --panel: #ffffff;
@@ -39,7 +35,6 @@
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
-    /* Book (Serif) Theme Override */
     body.theme-book {
       --bg: #fdfbf7;
       --panel: #fdfbf7;
@@ -63,12 +58,10 @@
       color: var(--text);
       font-family: var(--font-sans);
       transition: background-color 0.3s ease, color 0.3s ease;
-      /* Subtle grid pattern for texture */
       background-image: radial-gradient(var(--panel-border) 1px, transparent 1px);
       background-size: 40px 40px;
     }
 
-    /* Ambient Background Glow (Only in Dark Mode) */
     body:not(.theme-minimalist):not(.theme-book)::before {
       content: '';
       position: fixed;
@@ -93,7 +86,7 @@
     }
 
     .wrap {
-      max-width: 800px; /* Optimal reading width */
+      max-width: 900px;
       margin: 0 auto;
       padding: 120px 24px 80px;
     }
@@ -105,110 +98,14 @@
       padding: 48px 56px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
-      font-size: 1.0625rem; /* 17px */
+      font-size: 1.0625rem;
       line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
-    
+
     @media (max-width: 768px) {
       .doc { padding: 32px 24px; }
-    }
-
-    /* Typography */
-    .doc h1, .doc h2, .doc h3, .doc h4 {
-      margin-top: 2em;
-      margin-bottom: 0.8em;
-      font-weight: 700;
-      line-height: 1.3;
-      color: var(--text);
-    }
-    
-    .doc h1 {
-      font-size: 2.5rem;
-      margin-top: 0.5em;
-      letter-spacing: -0.02em;
-      border-bottom: 1px solid var(--panel-border);
-      padding-bottom: 0.5em;
-    }
-    
-    body.theme-book .doc h1 { font-family: 'Merriweather', serif; }
-    
-    .doc h2 {
-      font-size: 1.75rem;
-      letter-spacing: -0.01em;
-      color: var(--accent);
-    }
-    body.theme-book .doc h2 { color: var(--accent); }
-    body.theme-minimalist .doc h2 { color: var(--text); }
-
-    .doc h3 { font-size: 1.35rem; }
-    .doc h4 { font-size: 1.15rem; }
-
-    .doc p { margin-bottom: 1.5em; }
-
-    .doc blockquote {
-      margin: 2em 0;
-      padding: 16px 24px;
-      border-left: 4px solid var(--accent);
-      background: var(--code-bg);
-      border-radius: 8px;
-      font-style: italic;
-      color: var(--muted);
-    }
-
-    .doc ul, .doc ol {
-      margin-bottom: 1.5em;
-      padding-left: 1.5em;
-    }
-    .doc li { margin-bottom: 0.5em; }
-
-    .doc code {
-      font-family: var(--font-mono);
-      font-size: 0.85em;
-      background: var(--code-bg);
-      padding: 3px 6px;
-      border-radius: 6px;
-      color: var(--accent);
-      border: 1px solid var(--panel-border);
-    }
-    body.theme-minimalist code, body.theme-book code { color: var(--accent-2); }
-
-    .doc pre {
-      margin: 2em 0;
-      padding: 20px;
-      background: var(--code-bg);
-      border-radius: 12px;
-      border: 1px solid var(--panel-border);
-      overflow-x: auto;
-    }
-
-    .doc pre code {
-      background: transparent;
-      border: none;
-      padding: 0;
-      font-size: 0.9em;
-      color: inherit;
-    }
-
-    .doc a {
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.2s;
-    }
-    .doc a:hover { border-bottom-color: var(--accent); }
-
-    .doc hr {
-      border: 0;
-      border-top: 1px solid var(--panel-border);
-      margin: 3em 0;
-    }
-    
-    .doc img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      border: 1px solid var(--panel-border);
-      margin: 1em 0;
     }
 
     .top-note {
@@ -219,11 +116,22 @@
       font-family: var(--font-mono);
       opacity: 0.8;
     }
+
+    .error-box {
+      color: #ffb4b4;
+      background: rgba(255, 0, 0, 0.08);
+      border: 1px solid rgba(255, 0, 0, 0.18);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top-note">DOC VIEW · canonical source → <code id="canonical-path">content/selfware_demo.md</code></div>
+    <div id="status"></div>
     <div class="doc" id="doc">Loading…</div>
   </div>
 
@@ -231,24 +139,33 @@
   <script>
     async function load() {
       const el = document.getElementById('doc');
+      const status = document.getElementById('status');
       try {
         const api = (window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content');
         const res = await fetch(api, { cache: 'no-store' });
+        if (!res.ok) {
+          throw new Error('HTTP ' + res.status + ' while requesting ' + api);
+        }
         const data = await res.json();
         const md = data && typeof data.content === 'string' ? data.content : '';
         const cp = document.getElementById('canonical-path');
         if (cp && data && typeof data.path === 'string') cp.textContent = data.path;
-        if (window.marked && marked.parse) {
-          el.innerHTML = marked.parse(md);
-        } else {
-          el.textContent = md;
-        }
+        el.textContent = md || '(empty content)';
       } catch (e) {
-        el.innerHTML = '<h2>Error</h2><p>Failed to load content. Check console.</p>';
+        status.innerHTML = '<div class="error-box">Failed to load content:\n' + String(e) + '</div>';
+        el.textContent = 'Failed to load content.';
         console.error(e);
       }
     }
     load();
+
+    // Re-render when chat edit updates content
+    window.addEventListener('audp-content-updated', (e) => {
+      if (e.detail) {
+        const el = document.getElementById('doc');
+        if (el) el.textContent = e.detail;
+      }
+    });
   </script>
 
   <script src="../js/view-switcher.js?v=5"></script>

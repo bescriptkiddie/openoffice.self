@@ -358,3 +358,48 @@ summary: "Set protocol and repository license to MIT explicitly: add LICENSE fil
 rollback_hint: "git revert HEAD"
 notes: "This change clarifies MIT as active license choice, not an optional placeholder."
 ```
+
+---
+
+## id: chg-20260310-163743-chat_edit
+
+```yaml
+id: "chg-20260310-163743-chat_edit"
+timestamp: "2026-03-10T16:37:43Z"
+actor: "user+agent"
+intent: "chat_edit"
+paths:
+  - "content/selfware_demo.md"
+  - "content/memory/changes.md"
+summary: "已在标题后添加一个换行（空行），使标题与后续内容之间多一个分隔，视觉上更清晰。"
+rollback_hint: "git diff / git checkout -- <paths>"
+notes: ""
+```
+
+---
+
+## id: chg-20260310-164130-chat_edit
+
+```yaml
+id: "chg-20260310-164130-chat_edit"
+timestamp: "2026-03-10T16:41:30Z"
+actor: "user+agent"
+intent: "把标题中的日期改成 2026-03-11"
+paths: ["content/selfware_demo.md"]
+summary: "更新了文档标题中的日期，从 2026-03-10 改为 2026-03-11"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```
+
+---
+
+## id: chg-20260310-165216-chat_edit
+
+```yaml
+id: "chg-20260310-165216-chat_edit"
+timestamp: "2026-03-10T16:52:16Z"
+actor: "user+agent"
+intent: "Translate selected passage to Chinese"
+paths: ["content/selfware_demo.md"]
+summary: "Translated the English description of Selfware's unified file protocol to Chinese within the blockquote."
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```

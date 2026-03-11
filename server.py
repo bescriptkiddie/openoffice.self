@@ -127,6 +127,139 @@ def normalize_text_for_hash(s: str) -> str:
 def sha256_text(s: str) -> str:
     return hashlib.sha256(normalize_text_for_hash(s).encode("utf-8")).hexdigest()
 
+LLM_BASE_URL = (os.environ.get("SELFWARE_LLM_BASE_URL") or "https://api.stepfun.com/v1").rstrip("/")
+LLM_MODEL = os.environ.get("SELFWARE_LLM_MODEL") or "step-3.5-flash"
+LLM_API_KEY = os.environ.get("SELFWARE_LLM_API_KEY") or "7pk7WaK8CKDpwr6wVx6oUA6HmT6aqcuKfscmYc3Nhb0rz7SXxOwfk5q6YVm5y00VD"
+
+
+def strip_markdown_fences(text: str) -> str:
+    s = (text or "").strip()
+    if s.startswith("```"):
+        lines = s.splitlines()
+        if lines:
+            lines = lines[1:]
+        while lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        return "\n".join(lines).strip()
+    return s
+
+
+def call_openai_compatible_chat(messages, temperature: float = 0.2, timeout: int = 120) -> str:
+    if not LLM_API_KEY:
+        raise RuntimeError("SELFWARE_LLM_API_KEY is not configured")
+    payload = {
+        "model": LLM_MODEL,
+        "messages": messages,
+        "temperature": temperature,
+    }
+    req = urllib.request.Request(
+        LLM_BASE_URL + "/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {LLM_API_KEY}",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        raw = resp.read().decode("utf-8", errors="replace")
+    data = json.loads(raw)
+    content = (((data.get("choices") or [{}])[0].get("message") or {}).get("content")) or ""
+    content = strip_markdown_fences(content)
+    if not isinstance(content, str) or not content.strip():
+        raise RuntimeError("LLM returned empty content")
+    return content
+
+
+def build_self_protocol_edit_messages(protocol_text: str, current_content: str, instruction: str, lang: str, selection: str = "", history: list = None):
+    now_ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    tag = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    system = (
+        "You are Selfware Edit Copilot. "
+        "You modify ONLY the canonical content file, never the protocol file. "
+        "Follow the Selfware protocol exactly: canonical content is the authority for instance data; "
+        "writes must stay within content scope; preserve structure unless the user explicitly asks to restructure.\n\n"
+        "MEMORY MODULE (Section 10.3):\n"
+        "Every change to canonical content MUST be accompanied by a Change Record. "
+        "You are responsible for generating this record — the server will write it to content/memory/changes.md.\n\n"
+        "RESPONSE FORMAT (MANDATORY — three sections separated by exact delimiters):\n\n"
+        "1. Output the FULL updated canonical markdown content.\n"
+        "2. On a new line, output exactly: ===REPLY===\n"
+        "   Then write a brief conversational reply (1-3 sentences) in the user's language describing what you changed.\n"
+        "3. On a new line, output exactly: ===CHANGE_RECORD===\n"
+        "   Then output a YAML block (no fences) for the Change Record with these fields:\n"
+        f"   id: \"chg-{tag}-chat_edit\"\n"
+        f"   timestamp: \"{now_ts}\"\n"
+        "   actor: \"user+agent\"\n"
+        "   intent: (the user's instruction, concise)\n"
+        "   paths: (list of affected file paths)\n"
+        "   summary: (human-readable summary of what changed and why)\n"
+        "   rollback_hint: \"git checkout -- <paths>\"\n\n"
+        "If no changes are needed, still output the original content, then ===REPLY=== explaining why, "
+        "then ===CHANGE_RECORD=== with intent stating no changes were made."
+    )
+    if selection:
+        system += (
+            " The user has selected a specific passage from the document. "
+            "Focus your edit on or around that selected text according to the user's instruction. "
+            "Keep all other parts of the document unchanged unless the instruction explicitly says otherwise."
+        )
+    msgs = [{"role": "system", "content": system}]
+    if history:
+        for h in history:
+            role = h.get("role")
+            text = h.get("text", "")
+            if role in ("user", "assistant") and text:
+                msgs.append({"role": role, "content": text})
+    user_parts = [f"Language: {lang or 'zh'}\n"]
+    if selection:
+        user_parts.append(f"Selected text:\n\"\"\"{selection}\"\"\"\n")
+    user_parts.append(f"User instruction:\n{instruction}\n")
+    user_parts.append(f"Relevant Selfware protocol:\n{protocol_text}\n")
+    user_parts.append(f"Current canonical content:\n{current_content}")
+    user = "\n".join(user_parts)
+    msgs.append({"role": "user", "content": user})
+    return msgs
+
+
+REPLY_DELIMITER = "===REPLY==="
+CHANGE_RECORD_DELIMITER = "===CHANGE_RECORD==="
+MEMORY_CHANGES_PATH = "content/memory/changes.md"
+
+
+def parse_edit_response(raw: str):
+    """Split LLM output into (updated_content, reply, change_record_yaml)."""
+    content, reply, change_yaml = raw.strip(), "", ""
+    if CHANGE_RECORD_DELIMITER in content:
+        content, change_yaml = content.split(CHANGE_RECORD_DELIMITER, 1)
+        change_yaml = change_yaml.strip()
+    if REPLY_DELIMITER in content:
+        content, reply = content.split(REPLY_DELIMITER, 1)
+        reply = reply.strip()
+    return content.strip(), reply, change_yaml
+
+
+def write_change_record(change_yaml: str):
+    """Append a model-generated Change Record to memory. Server is just the writer, model is the author."""
+    if not change_yaml:
+        return
+    cleaned = change_yaml.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.splitlines()
+        lines = lines[1:]
+        while lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        cleaned = "\n".join(lines).strip()
+    chg_id = ""
+    for line in cleaned.splitlines():
+        if line.strip().startswith("id:"):
+            chg_id = line.split(":", 1)[1].strip().strip('"').strip("'")
+            break
+    record = f"\n---\n\n## id: {chg_id}\n\n```yaml\n{cleaned}\n```\n"
+    os.makedirs(os.path.dirname(MEMORY_CHANGES_PATH), exist_ok=True)
+    with open(MEMORY_CHANGES_PATH, "a", encoding="utf-8") as f:
+        f.write(record)
+
 def git_info():
     try:
         subprocess.run(
@@ -174,6 +307,7 @@ def capabilities_payload(base_url: str = ""):
         "endpoints": {
             "content_get": "/api/content",
             "content_save": "/api/save",
+            "chat_edit": "/api/chat_edit",
             "self_get": "/api/self",
             "protocol_get": "/api/protocol",
             "manifest_get": "/api/manifest",
@@ -587,7 +721,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 content_len = int(self.headers.get('Content-Length'))
                 post_body = self.rfile.read(content_len)
                 data = json.loads(post_body.decode('utf-8'))
-                
+
                 # Write back to canonical single-file source (content/selfware_demo.md)...
                 content = data.get('content')
                 lang = normalize_lang(data.get('lang')) or lang_q
@@ -597,7 +731,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 cpath = canonical_path_for_lang(lang)
                 with open(cpath, 'w', encoding='utf-8') as f:
                     f.write(content)
-                
+
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.send_header('Cache-Control', 'no-store')
@@ -605,6 +739,72 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     set_lang_cookie(self, lang)
                 self.end_headers()
                 self.wfile.write(json.dumps({'status': 'success', 'lang': lang or "zh", 'path': cpath}).encode('utf-8'))
+            except Exception as e:
+                self.send_error(500, str(e))
+        elif parsed.path == '/api/chat_edit':
+            try:
+                content_len = int(self.headers.get('Content-Length'))
+                post_body = self.rfile.read(content_len)
+                data = json.loads(post_body.decode('utf-8'))
+
+                instruction = data.get('instruction')
+                selection = data.get('selection', '')
+                history = data.get('history') or []
+                lang = normalize_lang(data.get('lang')) or lang_q or 'zh'
+                if not isinstance(instruction, str) or not instruction.strip():
+                    self.send_error(400, "Invalid payload: missing 'instruction' string")
+                    return
+                if not isinstance(selection, str):
+                    selection = ''
+                if not isinstance(history, list):
+                    history = []
+
+                cpath = canonical_path_for_lang(lang)
+                ppath = protocol_path_for_lang(lang)
+                with open(cpath, 'r', encoding='utf-8') as f:
+                    current_content = f.read()
+                with open(ppath, 'r', encoding='utf-8') as f:
+                    protocol_text = f.read()
+
+                messages = build_self_protocol_edit_messages(
+                    protocol_text=protocol_text,
+                    current_content=current_content,
+                    instruction=instruction,
+                    lang=lang,
+                    selection=selection.strip(),
+                    history=history,
+                )
+                raw_output = call_openai_compatible_chat(messages)
+                if not isinstance(raw_output, str) or not raw_output.strip():
+                    raise RuntimeError("Model returned empty updated content")
+
+                updated_content, reply, change_yaml = parse_edit_response(raw_output)
+                if not updated_content:
+                    raise RuntimeError("Model returned empty content after parsing")
+
+                with open(cpath, 'w', encoding='utf-8') as f:
+                    f.write(updated_content)
+
+                # Section 10.3: model-generated Change Record → memory
+                try:
+                    write_change_record(change_yaml)
+                except Exception as mem_err:
+                    print(f"Warning: failed to write change record: {mem_err}")
+
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Cache-Control', 'no-store')
+                set_lang_cookie(self, lang)
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'status': 'success',
+                    'mode': 'chat_edit',
+                    'lang': lang,
+                    'path': cpath,
+                    'instruction': instruction,
+                    'reply': reply,
+                    'content': updated_content,
+                }).encode('utf-8'))
             except Exception as e:
                 self.send_error(500, str(e))
         else:
@@ -630,8 +830,10 @@ if __name__ == "__main__":
     # Ensure we are running in the correct directory (optional safety check)
     if not os.path.exists(CANONICAL_PATH):
         print(f"Warning: {CANONICAL_PATH} not found in current directory.")
-        
-    base_url = f"http://127.0.0.1:{PORT}"
+
+    bind_host = os.environ.get("SELFWARE_HOST") or "0.0.0.0"
+    display_host = bind_host if bind_host != "0.0.0.0" else "115.191.49.124"
+    base_url = f"http://{display_host}:{PORT}"
     if PORT != DEFAULT_PORT and len(sys.argv) < 2 and not (os.environ.get("SELFWARE_PORT") or os.environ.get("AUDP_PORT") or os.environ.get("PORT")):
         print(f"⚠️  Port {DEFAULT_PORT} is in use; switched to {PORT}")
     print(f"✅ Selfware Local Server running at {base_url}")
@@ -649,12 +851,12 @@ if __name__ == "__main__":
         print("   - local_git: no")
     print("   - api: GET /api/capabilities")
     print(f"📂 Serving directory: {os.getcwd()}")
-    
+
     class ReuseTCPServer(socketserver.TCPServer):
         allow_reuse_address = True
 
-    # Security: Bind to localhost only to prevent external access
-    with ReuseTCPServer(("127.0.0.1", PORT), Handler) as httpd:
+    # Bind host configurable via SELFWARE_HOST; default exposed for direct access.
+    with ReuseTCPServer((bind_host, PORT), Handler) as httpd:
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

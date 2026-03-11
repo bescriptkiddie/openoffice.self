@@ -1,593 +1,419 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-disableGlobalEditor="true">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-  <title>Selfware · Self</title>
+  <title>Pika 内容控制台</title>
   <style>
     :root {
-      /* Default Dark Theme (Matches card.html / presentation.html) */
       --bg: #1a1e23;
-      --panel: rgba(255, 255, 255, 0.05);
-      --panel-border: rgba(255, 255, 255, 0.08);
-      --card-bg: rgba(30, 35, 40, 0.6);
+      --panel: rgba(255,255,255,0.05);
+      --panel-2: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.1);
       --text: #e0e6ed;
       --muted: #94a3b8;
       --accent: #00f0ff;
       --accent-2: #b026ff;
-      --border: rgba(255, 255, 255, 0.1);
-      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-      --code-bg: rgba(0, 0, 0, 0.3);
+      --good: #22c55e;
+      --shadow: 0 18px 50px -18px rgba(0,0,0,.55);
+      --radius: 20px;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
-      
-      --radius: 16px;
-      --header-height: 80px;
     }
-
-    /* Minimalist (Light) Theme Override */
     body.theme-minimalist {
-      --bg: #f3f4f6;
+      --bg: #f5f7fb;
       --panel: #ffffff;
-      --panel-border: #e5e7eb;
-      --card-bg: #ffffff;
+      --panel-2: #f8fafc;
+      --border: #e5e7eb;
       --text: #111827;
       --muted: #6b7280;
-      --accent: #0f172a;
-      --accent-2: #3b82f6;
-      --border: #e5e7eb;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --code-bg: #f9fafb;
+      --accent: #2563eb;
+      --accent-2: #7c3aed;
+      --shadow: 0 10px 30px -18px rgba(0,0,0,.18);
     }
-
-    /* Book (Serif) Theme Override */
     body.theme-book {
       --bg: #fdfbf7;
       --panel: #f9f6ef;
-      --panel-border: #e6e0d2;
-      --card-bg: #fdfbf7;
+      --panel-2: #f5f1e8;
+      --border: #e6e0d2;
       --text: #2c241b;
       --muted: #5d5446;
       --accent: #a0522d;
       --accent-2: #8b4513;
-      --border: #e6e0d2;
-      --shadow: 0 4px 12px rgba(44, 36, 27, 0.08);
-      --code-bg: #f5f2eb;
-      --font-sans: 'Merriweather', 'Georgia', serif;
+      --shadow: 0 10px 30px -20px rgba(44,36,27,.18);
+      --font-sans: 'Merriweather', Georgia, serif;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-height: 100vh;
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
       font-family: var(--font-sans);
-      transition: background-color 0.3s ease, color 0.3s ease;
-      /* Subtle grid pattern for texture */
-      background-image: radial-gradient(var(--panel-border) 1px, transparent 1px);
+      background-image: radial-gradient(var(--border) 1px, transparent 1px);
       background-size: 40px 40px;
     }
-
-    /* Ambient Background Glow (Only in Dark Mode) */
     body:not(.theme-minimalist):not(.theme-book)::before {
       content: '';
       position: fixed;
-      top: -20%;
-      left: -10%;
-      width: 60%;
-      height: 60%;
-      background: radial-gradient(circle, rgba(0, 240, 255, 0.08), transparent 70%);
-      z-index: -1;
+      inset: auto auto 20% -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(0,240,255,.08), transparent 70%);
       pointer-events: none;
+      z-index: -1;
     }
     body:not(.theme-minimalist):not(.theme-book)::after {
       content: '';
       position: fixed;
-      bottom: -20%;
-      right: -10%;
-      width: 60%;
-      height: 60%;
-      background: radial-gradient(circle, rgba(176, 38, 255, 0.08), transparent 70%);
-      z-index: -1;
+      inset: auto -10% -10% auto;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(176,38,255,.08), transparent 70%);
       pointer-events: none;
+      z-index: -1;
     }
-
     .container {
-      max-width: 1000px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 120px 24px 60px; /* Top padding clears the fixed header/controls */
+      padding: 120px 24px 72px;
     }
-
-    header {
-      margin-bottom: 48px;
-      animation: fadeUp 0.6s ease-out;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 3.5rem;
-      font-weight: 800;
-      margin: 0 0 24px;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, var(--text) 30%, var(--muted));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: inline-block;
-    }
-    
-    body.theme-minimalist h1, body.theme-book h1 {
-      background: none;
-      -webkit-text-fill-color: var(--text);
-      color: var(--text);
-    }
-
-    .subtitle {
-      font-size: 1.25rem;
-      line-height: 1.6;
-      color: var(--muted);
-      max-width: 800px;
-      margin: 0 auto 40px;
-    }
-
-    .subtitle strong {
-      color: var(--accent);
-      font-weight: 600;
-    }
-    body.theme-minimalist .subtitle strong { color: var(--accent-2); }
-    body.theme-book .subtitle strong { color: var(--accent); }
-
-    /* --- New Navigation Styles --- */
-    .view-nav {
+    .hero {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 16px;
-      margin-top: 32px;
-      margin-bottom: 56px;
-    }
-
-    .view-card-link {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 24px 16px;
-      background: var(--card-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: var(--radius);
-      color: var(--text);
-      text-decoration: none;
-      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-    }
-
-    .view-card-link::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .view-card-link:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent);
-      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3);
-    }
-    body.theme-minimalist .view-card-link:hover, 
-    body.theme-book .view-card-link:hover {
-      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1);
-    }
-
-    .view-card-link:hover::before {
-      opacity: 1;
-    }
-
-    .view-card-link .icon {
-      font-size: 2rem;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .view-card-link:hover .icon {
-      transform: scale(1.15) rotate(-5deg);
-    }
-
-    .view-card-link .label {
-      font-weight: 600;
-      font-size: 0.9375rem;
-      letter-spacing: 0.02em;
-    }
-
-    .view-card-link .desc {
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.4;
-      opacity: 0.8;
-    }
-    /* ----------------------------- */
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+      grid-template-columns: 1.3fr .7fr;
       gap: 24px;
-      animation: fadeUp 0.8s ease-out 0.2s backwards;
+      margin-bottom: 24px;
     }
-
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--panel);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 32px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      display: flex;
-      flex-direction: column;
+      backdrop-filter: blur(14px);
     }
-
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
-      border-color: var(--accent);
+    .hero-main {
+      padding: 32px;
     }
-    body.theme-minimalist .card:hover, body.theme-book .card:hover {
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-      border-color: var(--accent);
-    }
-
-    .card h2 {
-      margin: 0 0 24px;
-      font-size: 0.875rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .kv-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .kv-item {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 16px;
-      align-items: baseline;
-      font-size: 0.9375rem;
-      line-height: 1.5;
-    }
-
-    .kv-key {
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .kv-val {
-      color: var(--text);
-      word-break: break-all;
-    }
-
-    code {
-      font-family: var(--font-mono);
-      font-size: 0.85em;
-      background: var(--code-bg);
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: var(--accent);
-    }
-    body.theme-minimalist code, body.theme-book code {
-      color: var(--text);
-      border: 1px solid var(--panel-border);
-    }
-
-    .pill {
+    .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 16px;
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      border-radius: 99px;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    .pill:hover {
-      background: var(--accent);
-      color: #000;
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-    body.theme-minimalist .pill:hover, body.theme-book .pill:hover {
-      color: #fff;
-    }
-
-    pre {
-      margin: 0;
-      padding: 16px;
-      background: var(--code-bg);
-      border-radius: 8px;
-      border: 1px solid var(--panel-border);
-      font-family: var(--font-mono);
-      font-size: 0.8125rem;
-      line-height: 1.6;
-      color: var(--text);
-      overflow-x: auto;
-      max-height: 400px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: .08em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      background: rgba(0, 240, 255, 0.1);
       color: var(--accent);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      margin-bottom: 12px;
-    }
-    body.theme-minimalist .badge, body.theme-book .badge {
-      background: var(--panel);
-      color: var(--text);
-      border-color: var(--panel-border);
-    }
-
-    .prompt-box {
-      margin-top: 16px;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      border-left: 3px solid var(--accent);
-    }
-    body.theme-minimalist .prompt-box, body.theme-book .prompt-box {
-      background: var(--code-bg);
-    }
-
-    .prompt-title {
-      font-size: 0.8125rem;
+      margin-bottom: 18px;
       font-weight: 700;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.06;
+      letter-spacing: -.03em;
+    }
+    .lead {
       color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+    .hero-side {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .mini {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+    }
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: .08em;
       margin-bottom: 8px;
+      font-weight: 700;
     }
-
-    .prompt-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      font-size: 0.9375rem;
+    .mini-value {
+      font-size: .98rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
     }
-
-    .prompt-list li {
-      position: relative;
-      padding-left: 1.2em;
-      margin-bottom: 6px;
+    .status-ok { color: var(--good); font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .panel {
+      padding: 24px;
+    }
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .section-text {
+      white-space: pre-wrap;
+      line-height: 1.86;
       color: var(--text);
+    }
+    .section-text.muted { color: var(--muted); }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
       cursor: pointer;
-      transition: color 0.2s;
+      font: inherit;
+      font-size: .95rem;
+      transition: .18s ease;
     }
-    
-    .prompt-list li:hover {
-      color: var(--accent);
-      text-decoration: underline;
+    .tab:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #081018;
+      border-color: transparent;
+      font-weight: 700;
     }
-
-    .prompt-list li::before {
-      content: '›';
-      position: absolute;
-      left: 0;
-      color: var(--accent);
-      font-weight: bold;
+    body.theme-minimalist .tab.active,
+    body.theme-book .tab.active { color: #fff; }
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
     }
-    
-    .span-full {
-      grid-column: 1 / -1;
+    .nav-link {
+      text-decoration: none;
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 16px;
+      transition: .2s ease;
     }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .nav-link:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .nav-link strong { display: block; margin-bottom: 6px; }
+    .nav-link span { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+    .source {
+      margin-top: 16px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: .84rem;
+      word-break: break-all;
     }
-
-    /* Skeleton Loading State */
-    .loading { opacity: 0.5; font-style: italic; }
+    .loading, .error {
+      padding: 24px;
+      border-radius: 16px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      white-space: pre-wrap;
+      line-height: 1.8;
+    }
+    .error { color: #ffb4b4; }
+    @media (max-width: 900px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+      .container { padding: 100px 18px 48px; }
+      .hero-main, .hero-side, .panel { padding: 20px; }
+    }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <header>
-      <h1>Self Instance</h1>
-      <p class="subtitle" id="self-subtitle">
-        欢迎来到您的 <strong>Selfware</strong> 空间。<br>
-        这不仅仅是一个文档，而是一个<strong>“文件即软件”</strong>的生命体。<br>
-        您可以基于此协议创建任何应用：知识库、数据分析面板、个人助理等。<br>
-        无需编写复杂代码，只需在 Agent 中打开本文件，<strong>通过对话</strong>即可修改内容、升级功能、开启 Git 版本控制、甚至启用 Discovery 模块实现自我进化。
-      </p>
-
-      <!-- Key Views Navigation (Moved to Top) -->
-      <nav class="view-nav">
-        <a class="view-card-link" href="doc.html">
-          <span class="icon">📄</span>
-          <span class="label">Doc</span>
-          <span class="desc" id="self-desc-doc">文档阅读视图</span>
-        </a>
-        <a class="view-card-link" href="presentation.html">
-          <span class="icon">📊</span>
-          <span class="label">Presentation</span>
-          <span class="desc" id="self-desc-presentation">幻灯片演示模式</span>
-        </a>
-        <a class="view-card-link" href="outline.html">
-          <span class="icon">📝</span>
-          <span class="label">Outline</span>
-          <span class="desc" id="self-desc-outline">结构化大纲视图</span>
-        </a>
-        <a class="view-card-link" href="card.html">
-          <span class="icon">🃏</span>
-          <span class="label">Card</span>
-          <span class="desc" id="self-desc-card">卡片式浏览</span>
-        </a>
-        <a class="view-card-link" href="mindmap.html">
-          <span class="icon">🧠</span>
-          <span class="label">Mindmap</span>
-          <span class="desc" id="self-desc-mindmap">思维导图可视化</span>
-        </a>
-        <a class="view-card-link" href="canvas.html">
-          <span class="icon">🎨</span>
-          <span class="label">Canvas</span>
-          <span class="desc" id="self-desc-canvas">自由画布编辑</span>
-        </a>
-      </nav>
-    </header>
-
-    <div class="grid">
-      <!-- Instance Info Card -->
-      <div class="card">
-        <h2 id="self-h2-instance">Instance Status</h2>
-        <div class="kv-list" id="kv-instance">
-          <div class="loading">Loading instance data...</div>
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">Pika Content Dashboard</div>
+        <h1 id="title">Loading…</h1>
+        <div class="lead" id="summary">正在读取今天的内容。</div>
+        <div class="source" id="sourcePath">source: loading…</div>
+      </div>
+      <div class="card hero-side">
+        <div class="mini">
+          <div class="mini-label">当前状态</div>
+          <div class="mini-value"><span class="status-ok">● 内容已接入</span>
+首页现在直接读 canonical content，不再让你盯 API JSON。</div>
+        </div>
+        <div class="mini">
+          <div class="mini-label">今日核心洞察</div>
+          <div class="mini-value" id="insight">Loading…</div>
+        </div>
+        <div class="mini">
+          <div class="mini-label">真实触发</div>
+          <div class="mini-value" id="trigger">Loading…</div>
         </div>
       </div>
+    </section>
 
-      <!-- Capabilities Card -->
-      <div class="card">
-        <h2 id="self-h2-caps">Capabilities & AI Interaction</h2>
-        <div class="kv-list" id="kv-caps">
-          <div class="loading">Loading capabilities...</div>
-        </div>
-
-        <div class="prompt-box">
-          <div class="prompt-title" id="self-prompt-title">Try asking Agent:</div>
-          <ul class="prompt-list" id="self-prompt-list">
-            <li id="self-prompt-1">“帮我开启 Git 模块并提交当前变更”</li>
-            <li id="self-prompt-2">“把当前文档导出为 .self 包”</li>
-            <li id="self-prompt-3">“分析当前内容，生成一个新的数据看板视图”</li>
-            <li id="self-prompt-4">“检查是否有新版本的 Selfware 协议”</li>
-            <li id="self-prompt-5">“把所有 TODO 事项提取出来生成一个任务列表”</li>
-          </ul>
-        </div>
-
-        <div style="margin-top: 20px;">
-          <div class="badge">Raw JSON</div>
-          <pre id="pre-caps">Loading...</pre>
-        </div>
+    <section class="grid">
+      <div class="card panel">
+        <h2>主推正文</h2>
+        <div class="section-text" id="mainArticle">Loading…</div>
       </div>
-
-      <!-- Manifest Card -->
-      <div class="card span-full">
-        <h2 id="self-h2-manifest">Manifest Declaration</h2>
-        <div class="badge">GET /api/manifest</div>
-        <pre id="pre-manifest">Loading...</pre>
+      <div class="card panel">
+        <h2>平台成稿切换</h2>
+        <div class="tabs" id="platformTabs"></div>
+        <div class="section-text" id="platformContent">Loading…</div>
       </div>
-    </div>
+    </section>
+
+    <section class="card panel" style="margin-bottom:24px;">
+      <h2>查看方式</h2>
+      <div class="nav-grid">
+        <a class="nav-link" href="doc.html"><strong>文档视图</strong><span>适合完整阅读正文</span></a>
+        <a class="nav-link" href="outline.html"><strong>大纲视图</strong><span>看结构和章节脉络</span></a>
+        <a class="nav-link" href="card.html"><strong>卡片视图</strong><span>适合拆分平台卡片</span></a>
+        <a class="nav-link" href="mindmap.html"><strong>脑图视图</strong><span>看内容骨架和分支</span></a>
+        <a class="nav-link" href="presentation.html"><strong>演示视图</strong><span>适合讲述和投屏</span></a>
+        <a class="nav-link" href="canvas.html"><strong>Canvas</strong><span>自由布局与后续扩展</span></a>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h2>调试信息</h2>
+      <div class="section-text muted" id="debugInfo">等待内容加载…</div>
+    </section>
   </div>
 
   <script src="../js/runtime.js?v=1"></script>
   <script>
-    function escapeHtml(s) {
-      return (s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-    }
-    
-    function kvRow(k, v) {
-      return `
-        <div class="kv-item">
-          <div class="kv-key">${escapeHtml(k)}</div>
-          <div class="kv-val">${v}</div>
-        </div>
-      `;
+    function cleanBlock(text) {
+      return (text || '')
+        .replace(/^###\s+/gm, '')
+        .replace(/^##\s+/gm, '')
+        .replace(/^#\s+/gm, '')
+        .trim();
     }
 
-    async function loadJson(url) {
-      const u = (window.selfwareWithLang ? window.selfwareWithLang(url) : url);
-      const res = await fetch(u, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      return await res.json();
-    }
-
-    (async () => {
-      try {
-        // Static i18n (zh defaults are already in HTML)
-        if (window.selfwareLang === 'en' && window.selfwareT) {
-          window.selfwareApplyHtml('#self-subtitle', 'self.subtitle_html');
-          window.selfwareApplyText('#self-desc-doc', 'self.desc.doc');
-          window.selfwareApplyText('#self-desc-presentation', 'self.desc.presentation');
-          window.selfwareApplyText('#self-desc-outline', 'self.desc.outline');
-          window.selfwareApplyText('#self-desc-card', 'self.desc.card');
-          window.selfwareApplyText('#self-desc-mindmap', 'self.desc.mindmap');
-          window.selfwareApplyText('#self-desc-canvas', 'self.desc.canvas');
-          window.selfwareApplyText('#self-h2-instance', 'self.instance_status');
-          window.selfwareApplyText('#self-h2-caps', 'self.capabilities');
-          window.selfwareApplyText('#self-prompt-title', 'self.try_ask');
-          window.selfwareApplyText('#self-h2-manifest', 'self.manifest');
-          window.selfwareApplyText('#self-prompt-1', 'self.prompt.1');
-          window.selfwareApplyText('#self-prompt-2', 'self.prompt.2');
-          window.selfwareApplyText('#self-prompt-3', 'self.prompt.3');
-          window.selfwareApplyText('#self-prompt-4', 'self.prompt.4');
-          window.selfwareApplyText('#self-prompt-5', 'self.prompt.5');
-        }
-
-        const [selfData, caps, manifest] = await Promise.all([
-          loadJson('/api/self').catch(() => ({})), // Handle potential failures gracefully
-          loadJson('/api/capabilities').catch(() => ({})),
-          loadJson('/api/manifest').catch(() => ({})),
-        ]);
-
-        // Render Instance Info
-        const kvInstance = document.getElementById('kv-instance');
-        kvInstance.innerHTML =
-          kvRow('Protocol', `<code>${escapeHtml(caps?.protocol?.path || 'selfware.md')}</code>`) +
-          kvRow('Canonical', `<code>${escapeHtml(selfData?.path || 'N/A')}</code>`) +
-          kvRow('SHA256', `<code>${escapeHtml(selfData?.sha256 ? selfData.sha256.substring(0, 16) + '...' : 'N/A')}</code>`) +
-          kvRow('Write Scope', `<code>${escapeHtml((caps?.write_scope || []).join(', ') || 'None')}</code>`) +
-          kvRow('Confirmations', `<code>${escapeHtml((caps?.confirmation_required || []).join(', ') || 'None')}</code>`);
-
-        // Render Capabilities Info
-        const gi = caps?.modules?.local_git || {};
-        const gitLabel = gi?.is_repo ? `Yes (${gi.branch || 'detached'} ${(gi.head || '').slice(0,7)})` : 'No';
-
-        const kvCaps = document.getElementById('kv-caps');
-        kvCaps.innerHTML =
-          kvRow('Endpoint', `<code>/api/capabilities</code>`) +
-          kvRow('Local Git', `<code>${escapeHtml(gitLabel)}</code>`) +
-          kvRow('Pack', `<code>${escapeHtml(String(caps?.modules?.pack_self?.supported ?? true))}</code>`) +
-          kvRow('Discovery', `<code>${escapeHtml(String(caps?.modules?.discovery?.supported ?? true))}</code>`) +
-          kvRow('Self-Analysis', `<code>${escapeHtml(String(caps?.modules?.self_analysis?.supported ?? true))}</code>`);
-
-        // Render Raw JSONs
-        document.getElementById('pre-caps').textContent = JSON.stringify(caps, null, 2);
-        document.getElementById('pre-manifest').textContent = manifest?.content || '(Empty Manifest)';
-
-      } catch (e) {
-        console.error(e);
-        document.querySelectorAll('.loading').forEach(el => el.textContent = `Error: ${e.message}`);
-        document.getElementById('pre-caps').textContent = `Error loading data: ${e.message}`;
+    function parseMarkdown(md) {
+      const text = md || '';
+      const lines = text.split(/\r?\n/);
+      let title = 'Untitled';
+      const quote = [];
+      for (const line of lines) {
+        if (!title && /^#\s+/.test(line)) title = line.replace(/^#\s+/, '').trim();
       }
-    })();
-  </script>
+      const titleLine = lines.find(l => /^#\s+/.test(l));
+      if (titleLine) title = titleLine.replace(/^#\s+/, '').trim();
+      for (const line of lines) {
+        if (/^>\s?/.test(line)) quote.push(line.replace(/^>\s?/, ''));
+      }
+      const sections = {};
+      let current = null;
+      for (const line of lines) {
+        const m = line.match(/^##\s+(.+)$/);
+        if (m) {
+          current = m[1].trim();
+          sections[current] = [];
+          continue;
+        }
+        if (current) sections[current].push(line);
+      }
+      Object.keys(sections).forEach(k => sections[k] = cleanBlock(sections[k].join('\n')));
+      return { title, quote: quote.join('\n').trim(), sections };
+    }
 
-  <!-- Inject View Switcher & Theme Logic -->
+    function pickSection(sections, startsWith) {
+      const key = Object.keys(sections).find(k => k.startsWith(startsWith));
+      return key ? sections[key] : '';
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value || '（暂无内容）';
+    }
+
+    function buildTabs(platforms) {
+      const wrap = document.getElementById('platformTabs');
+      const body = document.getElementById('platformContent');
+      wrap.innerHTML = '';
+      const entries = Object.entries(platforms).filter(([,v]) => v && v.trim());
+      if (!entries.length) {
+        body.textContent = '暂无平台成稿';
+        return;
+      }
+      entries.forEach(([label, content], idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab' + (idx === 0 ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = () => {
+          wrap.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          btn.classList.add('active');
+          body.textContent = content;
+        };
+        wrap.appendChild(btn);
+        if (idx === 0) body.textContent = content;
+      });
+    }
+
+    function renderContent(content, sourceMeta) {
+      const debug = document.getElementById('debugInfo');
+      try {
+        const parsed = parseMarkdown(content || '');
+        const trigger = pickSection(parsed.sections, '1. 真实触发');
+        const curiosity = pickSection(parsed.sections, '2. 我开始好奇什么');
+        const judgment = pickSection(parsed.sections, '3. 一步步推到的判断');
+        const insight = pickSection(parsed.sections, '4. 我目前的核心洞察');
+        const meaning = pickSection(parsed.sections, '5. 这对普通使用者意味着什么');
+        const xhs = pickSection(parsed.sections, '7. 小红书版成稿');
+        const wechat = pickSection(parsed.sections, '8. 公众号版成稿');
+        const x = pickSection(parsed.sections, '9. X 版成稿');
+
+        setText('title', parsed.title);
+        setText('summary', parsed.quote || '今天的内容已加载。');
+        if (sourceMeta) {
+          setText('sourcePath', 'source: ' + (sourceMeta.path || 'unknown'));
+          debug.textContent = [
+            'lang: ' + (sourceMeta.lang || 'zh'),
+            'path: ' + (sourceMeta.path || 'unknown'),
+            'sections: ' + Object.keys(parsed.sections).join(' | ')
+          ].join('\n');
+        }
+        setText('insight', insight);
+        setText('trigger', trigger);
+        setText('mainArticle', [trigger, curiosity, judgment, insight, meaning].filter(Boolean).join('\n\n'));
+        buildTabs({ '小红书': xhs, '公众号': wechat, 'X / Twitter': x });
+      } catch (e) {
+        document.querySelector('.hero-main').innerHTML = '<div class="error">渲染失败：\n' + String(e) + '</div>';
+        if (debug) debug.textContent = 'error: ' + String(e);
+        console.error(e);
+      }
+    }
+
+    async function loadDashboard() {
+      try {
+        const api = window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content';
+        const res = await fetch(api, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + api);
+        const data = await res.json();
+        renderContent(data.content, { lang: data.lang, path: data.path });
+      } catch (e) {
+        document.querySelector('.hero-main').innerHTML = '<div class="error">首页加载失败：\n' + String(e) + '</div>';
+        console.error(e);
+      }
+    }
+
+    loadDashboard();
+
+    // Re-render immediately when chat edit updates content (no extra fetch)
+    window.addEventListener('audp-content-updated', (e) => {
+      if (e.detail) renderContent(e.detail);
+    });
+  </script>
   <script src="../js/view-switcher.js?v=5"></script>
 </body>
 </html>
