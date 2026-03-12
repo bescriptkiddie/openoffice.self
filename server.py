@@ -11,6 +11,7 @@ import hashlib
 import difflib
 import datetime
 import glob
+import re
 import fnmatch
 import zipfile
 import subprocess
@@ -601,6 +602,78 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-store')
             self.end_headers()
             self.wfile.write(json.dumps(payload).encode('utf-8'))
+        elif parsed.path == '/api/articles':
+            # List all articles in content/articles/ grouped by date
+            try:
+                import glob
+                articles_dir = 'content/articles'
+                articles = []
+                
+                # Use glob to find all markdown files
+                pattern = os.path.join(articles_dir, '*.md')
+                files = glob.glob(pattern)
+                
+                for filepath in sorted(files, reverse=True):
+                    filename = os.path.basename(filepath)
+                    try:
+                        with open(filepath, 'r', encoding='utf-8') as f:
+                            content = f.read(2000)
+                        
+                        # Extract date from filename (YYYY-MM-DD-title.md)
+                        date_match = re.match(r'^(\d{4}-\d{2}-\d{2})', filename)
+                        date = date_match.group(1) if date_match else None
+                        
+                        # Extract title from front matter or filename
+                        title = filename.replace('.md', '')
+                        front_title = re.search(r'^title:\s*["\']?(.+?)["\']?\s*$', content, re.MULTILINE)
+                        if front_title:
+                            title = front_title.group(1).strip()
+                        
+                        # Extract category/tags
+                        category = None
+                        cat_match = re.search(r'^category:\s*["\']?(.+?)["\']?\s*$', content, re.MULTILINE)
+                        if cat_match:
+                            category = cat_match.group(1).strip()
+                        
+                        # Count articles (total_articles field)
+                        total = None
+                        total_match = re.search(r'total_articles:\s*(\d+)', content)
+                        if total_match:
+                            total = int(total_match.group(1))
+                        
+                        articles.append({
+                            'filename': filename,
+                            'path': f'{articles_dir}/{filename}',
+                            'date': date,
+                            'title': title,
+                            'category': category,
+                            'total_articles': total,
+                            'size': os.path.getsize(filepath)
+                        })
+                    except Exception as e:
+                        continue
+                
+                # Group by year-month
+                grouped = {}
+                for art in articles:
+                    date = art.get('date') or 'unknown'
+                    year_month = date[:7] if len(date) >= 7 else date
+                    if year_month not in grouped:
+                        grouped[year_month] = []
+                    grouped[year_month].append(art)
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Cache-Control', 'no-store')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'articles': articles,
+                    'grouped': grouped,
+                    'total': len(articles),
+                    'directory': articles_dir
+                }).encode('utf-8'))
+            except Exception as e:
+                self.send_error(500, str(e))
         elif parsed.path == '/api/check_update':
             url = (qs.get('url') or [None])[0] or "https://floatboat.ai/selfware.md"
             if not (url.startswith("http://") or url.startswith("https://")):

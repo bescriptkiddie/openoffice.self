@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-disableGlobalEditor="true">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-  <title>Pika 内容控制台</title>
+  <title>Pika Self - 理念入口</title>
   <style>
     :root {
       --bg: #1a1e23;
       --panel: rgba(255,255,255,0.05);
       --panel-2: rgba(255,255,255,0.08);
+      --panel-3: rgba(255,255,255,0.03);
       --border: rgba(255,255,255,0.1);
       --text: #e0e6ed;
       --muted: #94a3b8;
@@ -25,6 +26,7 @@
       --bg: #f5f7fb;
       --panel: #ffffff;
       --panel-2: #f8fafc;
+      --panel-3: #f3f4f6;
       --border: #e5e7eb;
       --text: #111827;
       --muted: #6b7280;
@@ -36,6 +38,7 @@
       --bg: #fdfbf7;
       --panel: #f9f6ef;
       --panel-2: #f5f1e8;
+      --panel-3: #f1ebdf;
       --border: #e6e0d2;
       --text: #2c241b;
       --muted: #5d5446;
@@ -75,15 +78,9 @@
       z-index: -1;
     }
     .container {
-      max-width: 1180px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 120px 24px 72px;
-    }
-    .hero {
-      display: grid;
-      grid-template-columns: 1.3fr .7fr;
-      gap: 24px;
-      margin-bottom: 24px;
+      padding: 108px 24px 72px;
     }
     .card {
       background: var(--panel);
@@ -92,8 +89,18 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
     }
-    .hero-main {
-      padding: 32px;
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .hero-main { padding: 34px; }
+    .hero-side {
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
     }
     .eyebrow {
       display: inline-flex;
@@ -108,21 +115,24 @@
     }
     h1 {
       margin: 0 0 14px;
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      line-height: 1.06;
-      letter-spacing: -.03em;
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      line-height: 1.04;
+      letter-spacing: -.04em;
     }
     .lead {
       color: var(--muted);
       font-size: 1.08rem;
-      line-height: 1.8;
+      line-height: 1.9;
       white-space: pre-wrap;
     }
-    .hero-side {
-      padding: 24px;
-      display: grid;
-      gap: 16px;
-      align-content: start;
+    .manifesto {
+      margin-top: 24px;
+      padding: 18px 20px;
+      background: linear-gradient(135deg, rgba(0,240,255,.08), rgba(176,38,255,.08));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      line-height: 1.8;
+      font-size: 1rem;
     }
     .mini {
       background: var(--panel-2);
@@ -140,19 +150,11 @@
     }
     .mini-value {
       font-size: .98rem;
-      line-height: 1.7;
+      line-height: 1.75;
       white-space: pre-wrap;
     }
     .status-ok { color: var(--good); font-weight: 700; }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    .panel {
-      padding: 24px;
-    }
+    .panel { padding: 24px; margin-bottom: 24px; }
     .panel h2 {
       margin: 0 0 16px;
       font-size: 1rem;
@@ -160,42 +162,40 @@
       text-transform: uppercase;
       color: var(--accent);
     }
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .philosophy-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .philosophy-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+    }
+    .philosophy-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
     .section-text {
       white-space: pre-wrap;
-      line-height: 1.86;
+      line-height: 1.9;
       color: var(--text);
     }
-    .section-text.muted { color: var(--muted); }
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 24px;
+      margin-bottom: 24px;
     }
-    .tab {
-      appearance: none;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 999px;
-      cursor: pointer;
-      font: inherit;
-      font-size: .95rem;
-      transition: .18s ease;
-    }
-    .tab:hover { border-color: var(--accent); transform: translateY(-1px); }
-    .tab.active {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #081018;
-      border-color: transparent;
-      font-weight: 700;
-    }
-    body.theme-minimalist .tab.active,
-    body.theme-book .tab.active { color: #fff; }
     .nav-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 14px;
     }
     .nav-link {
@@ -209,7 +209,32 @@
     }
     .nav-link:hover { transform: translateY(-3px); border-color: var(--accent); }
     .nav-link strong { display: block; margin-bottom: 6px; }
-    .nav-link span { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+    .nav-link span { color: var(--muted); font-size: .88rem; line-height: 1.55; }
+    .today-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+    }
+    .today-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+    .today-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+    .today-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 700;
+    }
     .source {
       margin-top: 16px;
       color: var(--muted);
@@ -226,9 +251,9 @@
       line-height: 1.8;
     }
     .error { color: #ffb4b4; }
-    @media (max-width: 900px) {
-      .hero, .grid { grid-template-columns: 1fr; }
-      .container { padding: 100px 18px 48px; }
+    @media (max-width: 960px) {
+      .hero, .grid, .philosophy-grid { grid-template-columns: 1fr; }
+      .container { padding: 96px 18px 48px; }
       .hero-main, .hero-side, .panel { padding: 20px; }
     }
   </style>
@@ -237,55 +262,108 @@
   <div class="container">
     <section class="hero">
       <div class="card hero-main">
-        <div class="eyebrow">Pika Content Dashboard</div>
-        <h1 id="title">Loading…</h1>
-        <div class="lead" id="summary">正在读取今天的内容。</div>
+        <div class="eyebrow">Pika Self / 理念入口</div>
+        <h1 id="heroTitle">Loading…</h1>
+        <div class="lead" id="heroLead">正在读取 self 理念。</div>
+        <div class="manifesto" id="manifesto">Self 不是把内容堆起来，而是把一个人的判断、偏好、问题意识与持续思考，组织成一个能被看见、被理解、被继续使用的自己。</div>
         <div class="source" id="sourcePath">source: loading…</div>
       </div>
       <div class="card hero-side">
         <div class="mini">
-          <div class="mini-label">当前状态</div>
-          <div class="mini-value"><span class="status-ok">● 内容已接入</span>
-首页现在直接读 canonical content，不再让你盯 API JSON。</div>
+          <div class="mini-label">站点定位</div>
+          <div class="mini-value"><span class="status-ok">● Self 理念入口</span>
+这个首页先解释“你是谁、你怎么思考、为什么值得继续看”，而不是先把人扔进文章列表。</div>
         </div>
         <div class="mini">
-          <div class="mini-label">今日核心洞察</div>
-          <div class="mini-value" id="insight">Loading…</div>
+          <div class="mini-label">核心判断</div>
+          <div class="mini-value" id="coreInsight">Loading…</div>
         </div>
         <div class="mini">
-          <div class="mini-label">真实触发</div>
-          <div class="mini-value" id="trigger">Loading…</div>
+          <div class="mini-label">今日文章</div>
+          <div class="mini-value" id="todayMeta">Loading…</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h2>Self 的三个核心</h2>
+      <div class="philosophy-grid">
+        <div class="philosophy-card">
+          <h3>一个文件，就是一个可持续演化的自己</h3>
+          <p id="philosophy1">Self 不只是内容容器。它把数据、表达、结构和可继续协作的能力，放进同一个持续生长的入口里。</p>
+        </div>
+        <div class="philosophy-card">
+          <h3>内容有权威源，视图只是投影</h3>
+          <p id="philosophy2">真正重要的不是页面样子，而是 canonical source。不同视图只是同一份 self 的不同展开方式。</p>
+        </div>
+        <div class="philosophy-card">
+          <h3>self 的价值在连续性，不在一次惊艳</h3>
+          <p id="philosophy3">它要把判断、偏好、问题意识与记忆沉淀下来，让今天的表达，能继续影响明天的理解与协作。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h2>OpenSelf 的底层方法</h2>
+      <div class="philosophy-grid">
+        <div class="philosophy-card">
+          <h3>File as App</h3>
+          <p id="protocol1">一个文件不只是被打开的对象，它本身就可以携带数据、逻辑与视图，成为可分发、可运行、可继续编辑的软件单元。</p>
+        </div>
+        <div class="philosophy-card">
+          <h3>Canonical Source</h3>
+          <p id="protocol2">内容必须有唯一权威源。首页、文档、卡片、日历都不是真理本体，它们只是围绕同一份 self 进行呈现。</p>
+        </div>
+        <div class="philosophy-card">
+          <h3>View = f(Data, Intent, Rules)</h3>
+          <p id="protocol3">视图不是内容本体，而是对 self 的一种函数化投影。你看到的是不同切面，本质上仍是同一个持续演化的自己。</p>
         </div>
       </div>
     </section>
 
     <section class="grid">
       <div class="card panel">
-        <h2>主推正文</h2>
-        <div class="section-text" id="mainArticle">Loading…</div>
+        <h2>为什么要做这个站</h2>
+        <div class="section-text" id="whySelf">Loading…</div>
       </div>
       <div class="card panel">
-        <h2>平台成稿切换</h2>
-        <div class="tabs" id="platformTabs"></div>
-        <div class="section-text" id="platformContent">Loading…</div>
+        <h2>Agent 时代的问题</h2>
+        <div class="section-text" id="agentProblem">Loading…</div>
       </div>
     </section>
 
-    <section class="card panel" style="margin-bottom:24px;">
-      <h2>查看方式</h2>
-      <div class="nav-grid">
-        <a class="nav-link" href="doc.html"><strong>文档视图</strong><span>适合完整阅读正文</span></a>
-        <a class="nav-link" href="outline.html"><strong>大纲视图</strong><span>看结构和章节脉络</span></a>
-        <a class="nav-link" href="card.html"><strong>卡片视图</strong><span>适合拆分平台卡片</span></a>
-        <a class="nav-link" href="mindmap.html"><strong>脑图视图</strong><span>看内容骨架和分支</span></a>
-        <a class="nav-link" href="presentation.html"><strong>演示视图</strong><span>适合讲述和投屏</span></a>
-        <a class="nav-link" href="canvas.html"><strong>Canvas</strong><span>自由布局与后续扩展</span></a>
+    <section class="grid">
+      <div class="card panel">
+        <h2>这套 self 想解决什么</h2>
+        <div class="section-text" id="selfSolution">Loading…</div>
+      </div>
+      <div class="card panel">
+        <h2>从这里进入</h2>
+        <div class="nav-grid">
+          <a class="nav-link" href="archive.html"><strong>内容日历</strong><span>按月份和日期浏览每天生成的文章</span></a>
+          <a class="nav-link" href="doc.html"><strong>文档视图</strong><span>完整阅读当前 self 正文</span></a>
+          <a class="nav-link" href="outline.html"><strong>大纲视图</strong><span>先看结构，再看细节</span></a>
+          <a class="nav-link" href="card.html"><strong>卡片视图</strong><span>按主题拆分，适合快速扫读</span></a>
+          <a class="nav-link" href="mindmap.html"><strong>脑图视图</strong><span>把 self 的结构关系直接展开</span></a>
+          <a class="nav-link" href="presentation.html"><strong>演示视图</strong><span>更适合讲述你的观点</span></a>
+          <a class="nav-link" href="canvas.html"><strong>Canvas</strong><span>自由布局，后续可以做成 self 展陈空间</span></a>
+        </div>
       </div>
     </section>
 
-    <section class="card panel">
-      <h2>调试信息</h2>
-      <div class="section-text muted" id="debugInfo">等待内容加载…</div>
+    <section class="grid">
+      <div class="card panel">
+        <h2>今天的 self 观察</h2>
+        <div class="section-text" id="todayArticle">Loading…</div>
+      </div>
+      <div class="card panel">
+        <h2>最新文章入口</h2>
+        <div class="today-card">
+          <h3 id="latestTitle">Loading…</h3>
+          <p id="latestSummary">正在读取今天的内容摘要。</p>
+          <a class="today-link" id="latestLink" href="doc.html">进入完整内容 →</a>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -304,9 +382,6 @@
       const lines = text.split(/\r?\n/);
       let title = 'Untitled';
       const quote = [];
-      for (const line of lines) {
-        if (!title && /^#\s+/.test(line)) title = line.replace(/^#\s+/, '').trim();
-      }
       const titleLine = lines.find(l => /^#\s+/.test(l));
       if (titleLine) title = titleLine.replace(/^#\s+/, '').trim();
       for (const line of lines) {
@@ -332,87 +407,70 @@
       return key ? sections[key] : '';
     }
 
-    function setText(id, value) {
+    function firstLines(text, count = 3) {
+      return (text || '').split('\n').filter(Boolean).slice(0, count).join('\n');
+    }
+
+    function setText(id, value, fallback = '（暂无内容）') {
       const el = document.getElementById(id);
-      if (el) el.textContent = value || '（暂无内容）';
+      if (el) el.textContent = value || fallback;
     }
 
-    function buildTabs(platforms) {
-      const wrap = document.getElementById('platformTabs');
-      const body = document.getElementById('platformContent');
-      wrap.innerHTML = '';
-      const entries = Object.entries(platforms).filter(([,v]) => v && v.trim());
-      if (!entries.length) {
-        body.textContent = '暂无平台成稿';
-        return;
-      }
-      entries.forEach(([label, content], idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'tab' + (idx === 0 ? ' active' : '');
-        btn.textContent = label;
-        btn.onclick = () => {
-          wrap.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          btn.classList.add('active');
-          body.textContent = content;
-        };
-        wrap.appendChild(btn);
-        if (idx === 0) body.textContent = content;
-      });
-    }
-
-    function renderContent(content, sourceMeta) {
-      const debug = document.getElementById('debugInfo');
-      try {
-        const parsed = parseMarkdown(content || '');
-        const trigger = pickSection(parsed.sections, '1. 真实触发');
-        const curiosity = pickSection(parsed.sections, '2. 我开始好奇什么');
-        const judgment = pickSection(parsed.sections, '3. 一步步推到的判断');
-        const insight = pickSection(parsed.sections, '4. 我目前的核心洞察');
-        const meaning = pickSection(parsed.sections, '5. 这对普通使用者意味着什么');
-        const xhs = pickSection(parsed.sections, '7. 小红书版成稿');
-        const wechat = pickSection(parsed.sections, '8. 公众号版成稿');
-        const x = pickSection(parsed.sections, '9. X 版成稿');
-
-        setText('title', parsed.title);
-        setText('summary', parsed.quote || '今天的内容已加载。');
-        if (sourceMeta) {
-          setText('sourcePath', 'source: ' + (sourceMeta.path || 'unknown'));
-          debug.textContent = [
-            'lang: ' + (sourceMeta.lang || 'zh'),
-            'path: ' + (sourceMeta.path || 'unknown'),
-            'sections: ' + Object.keys(parsed.sections).join(' | ')
-          ].join('\n');
-        }
-        setText('insight', insight);
-        setText('trigger', trigger);
-        setText('mainArticle', [trigger, curiosity, judgment, insight, meaning].filter(Boolean).join('\n\n'));
-        buildTabs({ '小红书': xhs, '公众号': wechat, 'X / Twitter': x });
-      } catch (e) {
-        document.querySelector('.hero-main').innerHTML = '<div class="error">渲染失败：\n' + String(e) + '</div>';
-        if (debug) debug.textContent = 'error: ' + String(e);
-        console.error(e);
-      }
-    }
-
-    async function loadDashboard() {
+    async function loadHome() {
       try {
         const api = window.selfwareWithLang ? window.selfwareWithLang('/api/content') : '/api/content';
         const res = await fetch(api, { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + api);
         const data = await res.json();
-        renderContent(data.content, { lang: data.lang, path: data.path });
+        const parsed = parseMarkdown(data.content || '');
+
+        const trigger = pickSection(parsed.sections, '1. 真实触发');
+        const curiosity = pickSection(parsed.sections, '2. 我开始好奇什么');
+        const judgment = pickSection(parsed.sections, '3. 一步步推到的判断');
+        const insight = pickSection(parsed.sections, '4. 我目前的核心洞察');
+        const meaning = pickSection(parsed.sections, '5. 这对普通使用者意味着什么');
+
+        setText('heroTitle', 'Self 不是内容仓库，而是一个可持续演化的自己');
+        setText('heroLead', parsed.quote || '这个站点用来展示 pika 的 self 理念：把零散思考、长期判断、记忆与表达组织成一个持续可读、可协作、可继续生长的系统。');
+        setText('manifesto', insight || 'Self 关注的不是“今天发了什么”，而是“一个人的判断如何被持续留下，并继续影响之后的理解、创作与协作”。');
+        setText('coreInsight', firstLines(insight || judgment || meaning, 4));
+        setText('todayMeta', '今天的 self 内容已接入\n同时首页已融合 OpenSelf / Selfware 理念');
+        setText('sourcePath', 'source: ' + (data.path || 'unknown'));
+
+        setText('philosophy1', firstLines(curiosity || 'Self 不只是内容容器。它把数据、表达、结构和可继续协作的能力，放进同一个持续生长的入口里。', 3));
+        setText('philosophy2', firstLines(judgment || '真正重要的不是页面样子，而是 canonical source。不同视图只是同一份 self 的不同展开方式。', 3));
+        setText('philosophy3', firstLines(meaning || '它要把判断、偏好、问题意识与记忆沉淀下来，让今天的表达继续影响明天的理解与协作。', 3));
+        setText('protocol1', '一个文件不只是被打开的对象，它本身就可以携带数据、逻辑与视图，成为可分发、可运行、可继续编辑的软件单元。');
+        setText('protocol2', '内容必须有唯一权威源。首页、文档、卡片、日历都不是真理本体，它们只是围绕同一份 self 进行呈现。');
+        setText('protocol3', '视图不是内容本体，而是对 self 的一种函数化投影。你看到的是不同切面，本质上仍是同一个持续演化的自己。');
+
+        setText('whySelf', [
+          '我想做的不是一个内容站，而是一个能持续承载自我判断的入口。',
+          '在 OpenSelf / Selfware 的语境里，一个文件可以不仅是内容容器，还可以成为数据、逻辑、视图与协作关系的最小单元。',
+          '所以这个站真正要展示的，不只是每天发了什么，而是：一个人的思考如何被持续留下、被不同视图展开、并继续影响之后的表达。'
+        ].join('\n\n'));
+        setText('agentProblem', [
+          'Agent 时代最真实的问题，不是模型不够强，而是上下文会丢。',
+          '当用户在 Claude、Cursor、Windsurf 或别的 Agent 之间切换时，传统文档通常只保留结果，不保留过程。',
+          '检索过哪些资料、为什么这样判断、做过哪些修改、哪些结论已经讨论过——这些关键上下文，往往都会消失。',
+          '没有数据，就没有记忆；没有记忆，Agent 就无法真正接手工作。'
+        ].join('\n\n'));
+        setText('selfSolution', [
+          'Selfware 想解决的，就是“文档只保存结果、不保存上下文”这件事。',
+          '它把数据、逻辑、视图放进同一个可分发单元里：数据层保存 canonical source，逻辑层提供 runtime，视图层负责不同投影。',
+          '这样文件就不只是“被打开的内容”，而是一个可以被继续读取、继续协作、继续演化的上下文容器。',
+          '今天的 self 观察会成为明天的理解基础；今天的判断，也能在之后继续影响创作与协作。'
+        ].join('\n\n'));
+        setText('todayArticle', [insight, meaning, trigger].filter(Boolean).join('\n\n'));
+        setText('latestTitle', parsed.title || '进入最新 self 内容');
+        setText('latestSummary', firstLines(parsed.quote || insight || trigger, 5));
       } catch (e) {
-        document.querySelector('.hero-main').innerHTML = '<div class="error">首页加载失败：\n' + String(e) + '</div>';
+        document.querySelector('.hero-main').innerHTML = '<div class="error">入口页加载失败：\n' + String(e) + '</div>';
         console.error(e);
       }
     }
 
-    loadDashboard();
-
-    // Re-render immediately when chat edit updates content (no extra fetch)
-    window.addEventListener('audp-content-updated', (e) => {
-      if (e.detail) renderContent(e.detail);
-    });
+    loadHome();
   </script>
   <script src="../js/view-switcher.js?v=5"></script>
 </body>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-disableGlobalEditor="true">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <title>Pika 内容控制台 - 日历浏览</title>
+  <style>
+    :root {
+      --bg: #1a1e23;
+      --panel: rgba(255,255,255,0.05);
+      --panel-2: rgba(255,255,255,0.08);
+      --panel-3: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.1);
+      --text: #e0e6ed;
+      --muted: #94a3b8;
+      --accent: #00f0ff;
+      --accent-2: #b026ff;
+      --good: #22c55e;
+      --shadow: 0 18px 50px -18px rgba(0,0,0,.55);
+      --radius: 20px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    body.theme-minimalist {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --panel-3: #f3f4f6;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-2: #7c3aed;
+      --shadow: 0 10px 30px -18px rgba(0,0,0,.18);
+    }
+    body.theme-book {
+      --bg: #fdfbf7;
+      --panel: #f9f6ef;
+      --panel-2: #f5f1e8;
+      --panel-3: #f1ebdf;
+      --border: #e6e0d2;
+      --text: #2c241b;
+      --muted: #5d5446;
+      --accent: #a0522d;
+      --accent-2: #8b4513;
+      --shadow: 0 10px 30px -20px rgba(44,36,27,.18);
+      --font-sans: 'Merriweather', Georgia, serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      background-image: radial-gradient(var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    body:not(.theme-minimalist):not(.theme-book)::before {
+      content: '';
+      position: fixed;
+      inset: auto auto 20% -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(0,240,255,.08), transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    body:not(.theme-minimalist):not(.theme-book)::after {
+      content: '';
+      position: fixed;
+      inset: auto -10% -10% auto;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(176,38,255,.08), transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 110px 24px 72px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero-main { padding: 30px; }
+    .hero-side {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-content: start;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      letter-spacing: -.03em;
+    }
+    .lead {
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+    .mini {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      min-height: 104px;
+    }
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .mini-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .mini-value.small {
+      font-size: .98rem;
+      line-height: 1.6;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .panel {
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: .95rem;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .85rem;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--panel-3);
+      border: 1px solid var(--border);
+    }
+    .legend-dot.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: transparent;
+      box-shadow: 0 0 0 4px rgba(0,240,255,.08);
+    }
+    .months {
+      display: grid;
+      gap: 24px;
+    }
+    .month-card {
+      padding: 22px;
+    }
+    .month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .month-title {
+      margin: 0;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .month-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #081018;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+    body.theme-minimalist .month-badge,
+    body.theme-book .month-badge { color: #fff; }
+    .month-subtitle {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .weekday-row,
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .weekday {
+      text-align: center;
+      color: var(--muted);
+      font-size: .78rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding-bottom: 4px;
+    }
+    .day-cell {
+      min-height: 106px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--panel-3);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: .2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .day-cell.empty {
+      opacity: .32;
+      min-height: 86px;
+    }
+    .day-cell.has-article {
+      background: linear-gradient(180deg, var(--panel-2), rgba(0,240,255,.06));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .day-cell.has-article:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 24px rgba(0,240,255,.10);
+    }
+    .day-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .day-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .day-number {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .today-badge {
+      font-size: .68rem;
+      color: var(--good);
+      border: 1px solid rgba(34,197,94,.25);
+      background: rgba(34,197,94,.08);
+      padding: 3px 7px;
+      border-radius: 999px;
+    }
+    .article-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #081018;
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    body.theme-minimalist .article-pill,
+    body.theme-book .article-pill { color: #fff; }
+    .day-title {
+      font-size: .83rem;
+      line-height: 1.45;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .day-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .72rem;
+    }
+    .tag {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 16px;
+      transition: .2s ease;
+    }
+    .nav-link:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .nav-link strong { display: block; margin-bottom: 6px; }
+    .nav-link span { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+    .loading, .error, .empty-state {
+      padding: 28px;
+      border-radius: 16px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      text-align: center;
+      line-height: 1.8;
+    }
+    .error { color: #ffb4b4; }
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-side { grid-template-columns: 1fr 1fr; }
+      .calendar-grid, .weekday-row { gap: 8px; }
+      .day-cell { min-height: 96px; }
+    }
+    @media (max-width: 720px) {
+      .container { padding: 96px 16px 48px; }
+      .hero-main, .hero-side, .panel, .month-card { padding: 18px; }
+      .hero-side { grid-template-columns: 1fr; }
+      .weekday { font-size: .7rem; }
+      .calendar-grid, .weekday-row { gap: 6px; }
+      .day-cell { min-height: 82px; padding: 10px; border-radius: 14px; }
+      .day-title { -webkit-line-clamp: 2; font-size: .76rem; }
+      .article-pill, .tag { font-size: .66rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">Pika Content Calendar</div>
+        <h1>内容日历</h1>
+        <div class="lead">按月份查看每天生成的文章。有内容的日期会直接高亮，点进具体日期，就能打开当天的 self 文章。</div>
+      </div>
+      <div class="card hero-side">
+        <div class="mini">
+          <div class="mini-label">文章总数</div>
+          <div class="mini-value" id="totalArticles">-</div>
+        </div>
+        <div class="mini">
+          <div class="mini-label">覆盖月份</div>
+          <div class="mini-value" id="totalMonths">-</div>
+        </div>
+        <div class="mini">
+          <div class="mini-label">最近更新</div>
+          <div class="mini-value small" id="latestArticle">-</div>
+        </div>
+        <div class="mini">
+          <div class="mini-label">浏览方式</div>
+          <div class="mini-value small">月历视图优先，按日期直接进入当天文章</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <div class="toolbar">
+        <div class="hint">设计重点：先看月份，再扫日期，最后点开正文。不要把“找哪一天”这件事搞复杂。</div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot"></span>无文章</div>
+          <div class="legend-item"><span class="legend-dot active"></span>有文章，可点击</div>
+        </div>
+      </div>
+      <div id="months" class="months">
+        <div class="loading">正在加载内容日历...</div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h2>查看方式</h2>
+      <div class="nav-grid">
+        <a class="nav-link" href="self.html"><strong>返回导航页</strong><span>回到主内容控制台</span></a>
+        <a class="nav-link" href="doc.html"><strong>文档视图</strong><span>适合完整阅读正文</span></a>
+        <a class="nav-link" href="outline.html"><strong>大纲视图</strong><span>看结构和章节脉络</span></a>
+        <a class="nav-link" href="card.html"><strong>卡片视图</strong><span>适合拆分平台卡片</span></a>
+        <a class="nav-link" href="mindmap.html"><strong>脑图视图</strong><span>看内容骨架和分支</span></a>
+        <a class="nav-link" href="presentation.html"><strong>演示视图</strong><span>适合讲述和投屏</span></a>
+        <a class="nav-link" href="canvas.html"><strong>Canvas</strong><span>自由布局与后续扩展</span></a>
+      </div>
+    </section>
+  </div>
+
+  <script src="../js/runtime.js?v=1"></script>
+  <script>
+    const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日'];
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    function formatMonth(monthKey) {
+      const [year, month] = monthKey.split('-');
+      return `${year}年${Number(month)}月`;
+    }
+
+    function getTodayString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function weekdayOffsetMondayFirst(year, month) {
+      const jsDay = new Date(year, month - 1, 1).getDay();
+      return jsDay === 0 ? 6 : jsDay - 1;
+    }
+
+    function daysInMonth(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
+    function buildMonthCalendar(monthKey, monthArticles, todayStr) {
+      const [yearStr, monthStr] = monthKey.split('-');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      const totalDays = daysInMonth(year, month);
+      const offset = weekdayOffsetMondayFirst(year, month);
+      const articleMap = new Map(monthArticles.map(a => [a.date, a]));
+      const weekdayRow = WEEKDAYS.map(d => `<div class="weekday">${d}</div>`).join('');
+      const cells = [];
+
+      for (let i = 0; i < offset; i++) {
+        cells.push('<div class="day-cell empty"></div>');
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const date = `${monthKey}-${String(day).padStart(2, '0')}`;
+        const article = articleMap.get(date);
+        const isToday = date === todayStr;
+        if (!article) {
+          cells.push(`
+            <div class="day-cell">
+              <div class="day-top">
+                <div class="day-number">${day}</div>
+                ${isToday ? '<span class="today-badge">今天</span>' : ''}
+              </div>
+              <div class="day-meta"><span class="tag">暂无内容</span></div>
+            </div>
+          `);
+          continue;
+        }
+
+        cells.push(`
+          <a class="day-link" href="article.html?file=${encodeURIComponent(article.filename)}">
+            <div class="day-cell has-article">
+              <div class="day-top">
+                <div class="day-number">${day}</div>
+                ${isToday ? '<span class="today-badge">今天</span>' : '<span class="article-pill">已生成</span>'}
+              </div>
+              <div class="day-title">${escapeHtml(article.title || '当日文章')}</div>
+              <div class="day-meta">
+                ${article.category ? `<span class="tag">${escapeHtml(article.category)}</span>` : ''}
+                ${article.total_articles ? `<span class="tag">${article.total_articles} 条</span>` : ''}
+              </div>
+            </div>
+          </a>
+        `);
+      }
+
+      return `
+        <section class="card month-card">
+          <div class="month-header">
+            <div>
+              <h2 class="month-title">${formatMonth(monthKey)} <span class="month-badge">${monthArticles.length}</span></h2>
+              <div class="month-subtitle">本月已有 ${monthArticles.length} 篇日报归档</div>
+            </div>
+            <div class="month-subtitle">${monthKey}</div>
+          </div>
+          <div class="weekday-row">${weekdayRow}</div>
+          <div class="calendar-grid">${cells.join('')}</div>
+        </section>
+      `;
+    }
+
+    async function loadCalendar() {
+      const monthsWrap = document.getElementById('months');
+      try {
+        const api = window.selfwareWithLang ? window.selfwareWithLang('/api/articles') : '/api/articles';
+        const res = await fetch(api, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const articles = data.articles || [];
+        const grouped = data.grouped || {};
+        const monthKeys = Object.keys(grouped).sort().reverse();
+        const todayStr = getTodayString();
+
+        document.getElementById('totalArticles').textContent = data.total || 0;
+        document.getElementById('totalMonths').textContent = monthKeys.length;
+        document.getElementById('latestArticle').textContent = articles[0] ? `${articles[0].date} · ${articles[0].title}` : '暂无';
+
+        if (!monthKeys.length) {
+          monthsWrap.innerHTML = '<div class="empty-state">还没有可展示的日报。先生成文章，再回来这里按日期浏览。</div>';
+          return;
+        }
+
+        monthsWrap.innerHTML = monthKeys.map(monthKey => buildMonthCalendar(monthKey, grouped[monthKey] || [], todayStr)).join('');
+      } catch (e) {
+        monthsWrap.innerHTML = '<div class="error">内容日历加载失败：' + escapeHtml(String(e)) + '</div>';
+        console.error(e);
+      }
+    }
+
+    loadCalendar();
+  </script>
+  <script src="../js/view-switcher.js?v=5"></script>
+</body>
+</html>
