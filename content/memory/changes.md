@@ -492,3 +492,17 @@ paths:
 summary: "替换了关于'吃到红利'的结论句，强调快速找到定位而非最早装龙虾或回答问题"
 rollback_hint: "git checkout -- content/selfware_demo.md"
 ```
+
+---
+
+## id: chg-20260313-103546-chat_edit
+
+```yaml
+id: "chg-20260313-103546-chat_edit"
+timestamp: "2026-03-13T10:35:46Z"
+actor: "user+agent"
+intent: "将'6种'改为'n种'以表达视图的可扩展性"
+paths: ["content/selfware_demo.md"]
+summary: "在视图描述中将'6种投影'改为'n种投影'，强调Selfware支持任意数量的视图投影方式，不限于当前实现的6种"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```

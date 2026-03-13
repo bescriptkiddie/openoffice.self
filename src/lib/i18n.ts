@@ -45,6 +45,11 @@ const I18N: Record<Lang, Record<string, string>> = {
     "presentation.title": "Presentation View",
     "card.title": "Card View",
     "archive.title": "Article Archive",
+
+    "export.button": "Export .self",
+    "export.with_memory": "Export .self",
+    "export.success": "Exporting .self package...",
+    "export.failed": "Export failed",
   },
   zh: {
     "global.edit_source": "编辑源码",
@@ -90,6 +95,11 @@ const I18N: Record<Lang, Record<string, string>> = {
     "presentation.title": "演示视图",
     "card.title": "卡片视图",
     "archive.title": "文章归档",
+
+    "export.button": "导出 .self",
+    "export.with_memory": "导出 .self",
+    "export.success": "正在导出 .self 容器...",
+    "export.failed": "导出失败",
   },
 };
 

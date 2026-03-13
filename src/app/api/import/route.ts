@@ -3,6 +3,8 @@ import {
   readTextFile,
   writeTextFile,
   writeChangeRecord,
+  appendActionRecord,
+  memoryPathForFile,
   fileExists,
 } from "@/lib/selfware";
 import { existsSync, mkdirSync } from "fs";
@@ -155,9 +157,9 @@ Then output a YAML block (no fences):
    timestamp: "${nowTs}"
    actor: "user+agent"
    intent: "import_markdown"
-   paths:
-     - "${targetPath}"
-     - "content/memory/changes.md"
+    paths:
+      - "${targetPath}"
+      - "${memoryPathForFile(targetPath)}"
    summary: (describe what was imported, topics, how it was restructured)
    rollback_hint: "git checkout -- ${targetPath}"
 
@@ -240,7 +242,7 @@ ${protocolText ? `## Reference — Selfware Protocol (excerpt):\n${protocolText.
     // Write memory change record
     try {
       if (changeYaml) {
-        writeChangeRecord(changeYaml);
+        writeChangeRecord(changeYaml, targetPath);
       } else {
         // Fallback: write a basic change record
         const fallbackYaml = `id: "chg-${tag}-import"
@@ -249,13 +251,26 @@ actor: "user+agent"
 intent: "import_markdown"
 paths:
   - "${targetPath}"
-  - "content/memory/changes.md"
+  - "${memoryPathForFile(targetPath)}"
 summary: "Imported ${filename} and converted to Selfware canonical format."
 rollback_hint: "git checkout -- ${targetPath}"`;
-        writeChangeRecord(fallbackYaml);
+        writeChangeRecord(fallbackYaml, targetPath);
       }
     } catch (memErr) {
       console.error("Warning: failed to write change record:", memErr);
+    }
+
+    try {
+      appendActionRecord(
+        `## ${nowTs} — 新增内容: ${sanitizeFilename(filename)}\n\n` +
+        `- **路径**: \`${targetPath}\`\n` +
+        `- **类型**: ${saveAs === "article" ? "文章 (content/articles/)" : "主文档 (canonical)"}\n` +
+        `- **来源**: 用户导入\n` +
+        `- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self\n` +
+        `- **记忆文件**: \`${memoryPathForFile(targetPath)}\`\n`
+      );
+    } catch {
+      /* actions record is best-effort */
     }
 
     return NextResponse.json({

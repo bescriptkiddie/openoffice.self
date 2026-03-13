@@ -6,6 +6,7 @@ import type { Lang, CapabilitiesPayload } from "./types";
 const PROJECT_ROOT = process.cwd();
 const CANONICAL_PATH = "content/selfware_demo.md";
 const MEMORY_CHANGES_PATH = "content/memory/changes.md";
+const MEMORY_ACTIONS_PATH = "content/memory/actions.md";
 const SUPPORTED_LANGS: Lang[] = ["zh", "en"];
 
 export function normalizeLang(lang: string | null | undefined): Lang | null {
@@ -51,7 +52,20 @@ export function fileExists(path: string): boolean {
   return existsSync(join(PROJECT_ROOT, path));
 }
 
-export function writeChangeRecord(changeYaml: string): void {
+/**
+ * Resolve the memory file path for a given content file.
+ * - Canonical files (content/selfware_demo*.md) → content/memory/changes.md (global)
+ * - Article files (content/articles/xxx.md) → content/articles/xxx.memory.md (per-file)
+ * - Other content/ files → content/memory/changes.md (fallback to global)
+ */
+export function memoryPathForFile(contentPath: string): string {
+  if (contentPath.startsWith("content/articles/") && contentPath.endsWith(".md")) {
+    return contentPath.replace(/\.md$/, ".memory.md");
+  }
+  return MEMORY_CHANGES_PATH;
+}
+
+export function writeChangeRecord(changeYaml: string, contentPath?: string): void {
   if (!changeYaml) return;
 
   let cleaned = changeYaml.trim();
@@ -74,14 +88,75 @@ export function writeChangeRecord(changeYaml: string): void {
 
   const record = `\n---\n\n## id: ${chgId}\n\n\`\`\`yaml\n${cleaned}\n\`\`\`\n`;
 
-  const dirPath = join(PROJECT_ROOT, "content/memory");
+  // Determine memory file path
+  const memPath = contentPath ? memoryPathForFile(contentPath) : MEMORY_CHANGES_PATH;
+  const fullPath = join(PROJECT_ROOT, memPath);
+
+  // Ensure parent directory exists
+  const dirPath = join(fullPath, "..");
   if (!existsSync(dirPath)) {
     mkdirSync(dirPath, { recursive: true });
   }
 
-  const fullPath = join(PROJECT_ROOT, MEMORY_CHANGES_PATH);
-  const existing = existsSync(fullPath) ? readFileSync(fullPath, "utf-8") : "";
+  if (memPath !== MEMORY_CHANGES_PATH && !existsSync(fullPath)) {
+    const baseName = basename(contentPath || "");
+    const nowIso = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+    const header = [
+      "---",
+      "selfware:",
+      "  role: memory_changes",
+      `  title: "Change Records for ${baseName}"`,
+      `  purpose: "对该文件的每次变更记录元数据（可审计、可协作、可回滚）。"`,
+      `  scope: "记录 ${contentPath} 的内容变更；内容可简短但必须可追溯。"`,
+      "  update_policy: append_only",
+      "  owner: user",
+      `  created_at: "${nowIso}"`,
+      `  updated_at: "${nowIso}"`,
+      "---",
+      "",
+      `# Change Records: ${baseName}`,
+      "",
+      "## Template",
+      "",
+      "```yaml",
+      'id: "chg-YYYYMMDD-HHMMSS-xxx"',
+      'timestamp: "YYYY-MM-DDThh:mm:ssZ"',
+      'actor: "user|agent|service"',
+      'intent: "add_memory|update_protocol|fix_overflow|pack|..."',
+      "paths:",
+      '  - "path/to/file"',
+      'summary: "What changed and why (human readable)."',
+      'rollback_hint: "git revert <ref> | manual steps"',
+      'notes: "optional"',
+      "```",
+      "",
+    ].join("\n");
+    writeFileSync(fullPath, header, "utf-8");
+  }
+
+  let existing = existsSync(fullPath) ? readFileSync(fullPath, "utf-8") : "";
+
+  const nowIsoUpdate = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+  existing = existing.replace(
+    /^(\s*updated_at:\s*)"[^"]*"/m,
+    `$1"${nowIsoUpdate}"`
+  );
+
   writeFileSync(fullPath, existing + record, "utf-8");
+}
+
+export function appendActionRecord(entry: string): void {
+  const fullPath = join(PROJECT_ROOT, MEMORY_ACTIONS_PATH);
+  if (!existsSync(fullPath)) return;
+
+  const nowIsoUpdate = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+  let existing = readFileSync(fullPath, "utf-8");
+  existing = existing.replace(
+    /^(\s*updated_at:\s*)"[^"]*"/m,
+    `$1"${nowIsoUpdate}"`
+  );
+
+  writeFileSync(fullPath, existing + "\n---\n\n" + entry.trim() + "\n", "utf-8");
 }
 
 function getGitInfo(): Record<string, unknown> {
@@ -189,53 +264,53 @@ export function listArticles(): {
   grouped: Record<string, Array<Record<string, unknown>>>;
   total: number;
 } {
-  const articlesDir = join(PROJECT_ROOT, "content/articles");
-
-  if (!existsSync(articlesDir)) {
-    return { articles: [], grouped: {}, total: 0 };
-  }
-
-  const files = readdirSync(articlesDir)
-    .filter((f) => f.endsWith(".md"))
-    .sort()
-    .reverse();
-
   const articles: Array<Record<string, unknown>> = [];
 
-  for (const filename of files) {
-    const filepath = join(articlesDir, filename);
-    try {
-      const stat = statSync(filepath);
-      const content = readFileSync(filepath, "utf-8").slice(0, 2000);
+  // 1. Scan content/articles/
+  const articlesDir = join(PROJECT_ROOT, "content/articles");
+  if (existsSync(articlesDir)) {
+    const files = readdirSync(articlesDir)
+      .filter((f) => f.endsWith(".md") && !f.endsWith(".memory.md"))
+      .sort()
+      .reverse();
 
-      const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
-      const date = dateMatch ? dateMatch[1] : null;
+    for (const filename of files) {
+      const filepath = join(articlesDir, filename);
+      try {
+        const stat = statSync(filepath);
+        const content = readFileSync(filepath, "utf-8").slice(0, 2000);
 
-      let title = filename.replace(".md", "");
-      const frontTitle = content.match(/^title:\s*['"]?(.+?)['"]?\s*$/m);
-      if (frontTitle) title = frontTitle[1].trim();
+        const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+        const date = dateMatch ? dateMatch[1] : null;
 
-      let category: string | null = null;
-      const catMatch = content.match(/^category:\s*['"]?(.+?)['"]?\s*$/m);
-      if (catMatch) category = catMatch[1].trim();
+        let title = filename.replace(".md", "");
+        const frontTitle = content.match(/^title:\s*['"]?(.+?)['"]?\s*$/m);
+        if (frontTitle) title = frontTitle[1].trim();
 
-      articles.push({
-        filename,
-        path: `content/articles/${filename}`,
-        date,
-        title,
-        category,
-        size: stat.size,
-      });
-    } catch {
-      continue;
+        let category: string | null = null;
+        const catMatch = content.match(/^category:\s*['"]?(.+?)['"]?\s*$/m);
+        if (catMatch) category = catMatch[1].trim();
+
+        articles.push({
+          filename,
+          path: `content/articles/${filename}`,
+          date,
+          title,
+          category,
+          size: stat.size,
+        });
+      } catch {
+        continue;
+      }
     }
   }
 
+
+  // Group by year-month
   const grouped: Record<string, Array<Record<string, unknown>>> = {};
   for (const art of articles) {
-    const date = (art.date as string) || "unknown";
-    const yearMonth = date.length >= 7 ? date.slice(0, 7) : date;
+    const date = (art.date as string) || "_imported";
+    const yearMonth = date.startsWith("_") ? date : (date.length >= 7 ? date.slice(0, 7) : date);
     if (!grouped[yearMonth]) grouped[yearMonth] = [];
     grouped[yearMonth].push(art);
   }

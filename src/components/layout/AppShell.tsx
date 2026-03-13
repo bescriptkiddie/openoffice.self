@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useChat } from "@/lib/hooks";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useChat, useToast } from "@/lib/hooks";
 import ViewSwitcher from "./ViewSwitcher";
 import ThemeSwitcher from "./ThemeSwitcher";
 import LangSwitcher from "./LangSwitcher";
@@ -10,10 +11,49 @@ import ImportModal from "./ImportModal";
 import { useLang } from "@/lib/hooks";
 import { t } from "@/lib/i18n";
 
+function ExportButton() {
+  const { lang } = useLang();
+  const toast = useToast();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const pathParam = searchParams.get("path");
+  const isDocView = pathname === "/doc" && pathParam?.startsWith("content/");
+
+  if (!isDocView) return null;
+
+  return (
+    <button
+      onClick={() => {
+        const url = `/api/export?path=${encodeURIComponent(pathParam!)}&format=bundle`;
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "";
+        a.click();
+        toast.show(t("export.success", lang));
+      }}
+      className="px-3 py-1.5 rounded-md cursor-pointer
+        text-[13px] font-medium flex items-center gap-1.5
+        border transition-all
+        bg-[var(--panel)] border-[var(--border)] text-[var(--text)]
+        hover:bg-[var(--panel-2)] hover:-translate-y-px"
+    >
+      📤 {t("export.button", lang)}
+    </button>
+  );
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { isOpen, setIsOpen, setSelection } = useChat();
   const { lang } = useLang();
   const [importOpen, setImportOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Close chat panel on view/route change
+  useEffect(() => {
+    setIsOpen(false);
+    setSelection("");
+  }, [pathname, setIsOpen, setSelection]);
 
   // Text selection detection — open chat on select
   useEffect(() => {
@@ -66,6 +106,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Right: actions */}
         <div className="flex items-center gap-2">
+          <Suspense fallback={null}><ExportButton /></Suspense>
           <button
             onClick={() => setImportOpen(true)}
             className="px-3 py-1.5 rounded-md cursor-pointer
@@ -94,7 +135,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Two-column body ── */}
       <div
-        className="h-[calc(100vh-3.5rem)] transition-all duration-300 ease-out"
+        className="mt-14 h-[calc(100vh-3.5rem)] overflow-hidden transition-all duration-300 ease-out"
         style={{
           display: "grid",
           gridTemplateColumns: isOpen ? "1fr 380px" : "1fr",

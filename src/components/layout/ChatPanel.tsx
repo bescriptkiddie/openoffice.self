@@ -48,7 +48,6 @@ export default function ChatPanel() {
     scrollToBottom();
 
     try {
-      // Get current content path from URL
       const urlParams = new URLSearchParams(window.location.search);
       const contentPath = urlParams.get("path") || undefined;
 

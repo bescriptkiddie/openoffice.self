@@ -80,6 +80,21 @@ export async function POST(request: NextRequest) {
       cpath = canonicalPathForLang(lang);
     }
 
+    // HARD GUARD: Memory files are IMMUTABLE — reject any edit attempt
+    const isMemoryFile =
+      cpath.endsWith(".memory.md") ||
+      cpath === "content/memory/changes.md" ||
+      cpath.startsWith("content/memory/");
+    if (isMemoryFile) {
+      return NextResponse.json(
+        {
+          error:
+            "Memory records are immutable by protocol design. They are an append-only audit log and cannot be modified through any means.",
+        },
+        { status: 403 }
+      );
+    }
+
     const ppath = protocolPathForLang(lang);
     const currentContent = readTextFile(cpath);
     const protocolText = readTextFile(ppath);
@@ -94,7 +109,7 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `You are Selfware Edit Copilot. You modify ONLY the canonical content file, never the protocol file. Follow the Selfware protocol exactly: canonical content is the authority for instance data; writes must stay within content scope; preserve structure unless the user explicitly asks to restructure.
 
 MEMORY MODULE (Section 10.3):
-Every change to canonical content MUST be accompanied by a Change Record. You are responsible for generating this record — the server will write it to content/memory/changes.md.
+Every change to canonical content MUST be accompanied by a Change Record. You are responsible for generating this record — the server will write it to the appropriate per-file memory file. Memory files are append-only and immutable — you never edit them directly.
 
 RESPONSE FORMAT (MANDATORY — three sections separated by exact delimiters):
 
@@ -176,7 +191,7 @@ If no changes are needed, still output the original content, then ===REPLY=== ex
     writeTextFile(cpath, updatedContent);
 
     try {
-      writeChangeRecord(changeYaml);
+      writeChangeRecord(changeYaml, cpath);
     } catch (memErr) {
       console.error("Warning: failed to write change record:", memErr);
     }

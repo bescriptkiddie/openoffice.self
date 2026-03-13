@@ -1,3 +1,29 @@
+# Selfware Demo
+
+> This file is not just a document — it's a running Selfware.
+> Data, views, memory — all self-contained. One file, one app.
+
+## Identity
+
+- **Protocol**: Selfware v0.1.0
+- **Path**: content/selfware_demo.en.md
+- **Verification**: Real-time SHA-256 hash — this file knows what it is
+
+## Views
+
+Same data, 6 projections — Doc, Outline, Presentation, Card, Mindmap, Canvas.
+
+> View = f(Data, Intent, Rules)
+
+Every view you see is the result of this formula. Data stays the same; the function changes; the projection changes.
+
+## Memory
+
+Every modification is recorded: who changed it, why, and how to roll back.
+AI cannot silently modify this file — it must leave a trace, it must get confirmation.
+
+---
+
 # Selfware (英译)
 
 > A file is an app. Everything is a file.

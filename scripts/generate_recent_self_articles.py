@@ -34,14 +34,16 @@ def update_canonical_index(date_str: str, title: str):
     new_entry = f"- [{title}](articles/{date_str}-每日AI资讯.md)\n"
 
     if articles_section in content:
-        pattern = r'(## 📰 AI 资讯日报\n\n)'
-        new_content = re.sub(pattern, r'\1' + new_entry, content, count=1)
+        pattern = r"(## 📰 AI 资讯日报\n\n)"
+        new_content = re.sub(pattern, r"\1" + new_entry, content, count=1)
     else:
         new_section = f"{articles_section}{new_entry}\n---\n\n"
-        match = re.search(r'^(# .+\n)', content)
+        match = re.search(r"^(# .+\n)", content)
         if match:
             insert_pos = match.end()
-            new_content = content[:insert_pos] + "\n" + new_section + content[insert_pos:]
+            new_content = (
+                content[:insert_pos] + "\n" + new_section + content[insert_pos:]
+            )
         else:
             new_content = new_section + content
 
@@ -99,7 +101,7 @@ def build_content(date_str: str, archive_path: Path, grouped: OrderedDict):
         'tags: ["AI", "日报", "资讯", "self"]',
         'source: "ai-news-radar archive"',
         f'archive_file: "{archive_path.name}"',
-        f'total_articles: {total}',
+        f"total_articles: {total}",
         "---",
         "",
         f"# {title}",
@@ -121,14 +123,16 @@ def build_content(date_str: str, archive_path: Path, grouped: OrderedDict):
             parts.append(f"- [{article['title']}]({article['url']})")
         parts.append("")
 
-    parts.extend([
-        "---",
-        "",
-        "## 📊 今日要点",
-        "",
-        "今日 AI 资讯按信息源归档如下：",
-        "",
-    ])
+    parts.extend(
+        [
+            "---",
+            "",
+            "## 📊 今日要点",
+            "",
+            "今日 AI 资讯按信息源归档如下：",
+            "",
+        ]
+    )
     for source, articles in grouped.items():
         parts.append(f"- **{source}**：{len(articles)} 条")
     parts.extend(["", f"*共 {total} 条精选资讯*", ""])
@@ -144,6 +148,76 @@ def save_article(date_str: str, content: str):
     return path
 
 
+def write_memory_record(
+    date_str: str, article_path: Path, archive_path: Path, total_count: int
+):
+    """Write memory change record for imported article.
+
+    Generates {article_path}.memory.md with Selfware protocol format.
+    """
+    memory_path = article_path.parent / f"{article_path.stem}.memory.md"
+    filename = article_path.name
+    iso_now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # Extract date tag for change record ID
+    # date_str format: "2026-03-12" -> "20260312"
+    date_tag = date_str.replace("-", "")
+
+    # Generate unique ID with timestamp
+    time_tag = datetime.utcnow().strftime("%H%M%S")
+    change_id = f"chg-{date_tag}-{time_tag}-import"
+
+    # Build memory file content
+    memory_content = f"""---
+selfware:
+  role: memory_changes
+  title: "Change Records for {filename}"
+  purpose: "对该文件的每次变更记录元数据（可审计、可协作、可回滚）。"
+  scope: "记录 content/articles/{filename} 的内容变更；内容可简短但必须可追溯。"
+  update_policy: append_only
+  owner: user
+  created_at: "{iso_now}"
+  updated_at: "{iso_now}"
+---
+
+# Change Records: {filename}
+
+## Template
+
+```yaml
+id: "chg-YYYYMMDD-HHMMSS-xxx"
+timestamp: "YYYY-MM-DDThh:mm:ssZ"
+actor: "user|agent|service"
+intent: "add_memory|update_protocol|fix_overflow|pack|..."
+paths:
+  - "path/to/file"
+summary: "What changed and why (human readable)."
+rollback_hint: "git revert <ref> | manual steps"
+notes: "optional"
+```
+
+---
+
+## id: {change_id}
+
+```yaml
+id: "{change_id}"
+timestamp: "{iso_now}"
+actor: "service"
+intent: "import_from_ai_news_radar_archive"
+paths:
+  - "content/articles/{filename}"
+  - "content/articles/{filename}.memory.md"
+summary: "Batch imported daily AI news from {archive_path.name}, {total_count} articles."
+rollback_hint: "git checkout -- content/articles/{filename}"
+```
+"""
+
+    memory_path.write_text(memory_content, encoding="utf-8")
+    print(f"✅ Memory: {memory_path}")
+    return memory_path
+
+
 def select_dates(args, all_dates):
     available = sorted(all_dates)
     if args.start and args.end:
@@ -153,8 +227,12 @@ def select_dates(args, all_dates):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate recent self-format daily articles from archives")
-    parser.add_argument("--days", type=int, default=5, help="How many recent dates to generate")
+    parser = argparse.ArgumentParser(
+        description="Generate recent self-format daily articles from archives"
+    )
+    parser.add_argument(
+        "--days", type=int, default=5, help="How many recent dates to generate"
+    )
     parser.add_argument("--start", help="Start date YYYY-MM-DD")
     parser.add_argument("--end", help="End date YYYY-MM-DD")
     args = parser.parse_args()
@@ -176,7 +254,9 @@ def main():
         items = load_archive(archive_path)
         grouped = group_items(items)
         content = build_content(date_str, archive_path, grouped)
-        save_article(date_str, content)
+        article_path = save_article(date_str, content)
+        total_count = sum(len(v) for v in grouped.values())
+        write_memory_record(date_str, article_path, archive_path, total_count)
         update_canonical_index(date_str, f"每日 AI 资讯 | {date_str}")
 
     print("\n✨ Done")

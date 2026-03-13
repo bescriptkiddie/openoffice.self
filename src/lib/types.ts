@@ -51,13 +51,14 @@ export const VIEWS: ViewDef[] = [
     icon: "🎨",
     description: { zh: "画布视图", en: "Freeform canvas editing" },
   },
-  {
-    name: "Archive",
-    path: "/archive",
-    icon: "📚",
-    description: { zh: "文章归档", en: "Article archive" },
-  },
-];
+  ];
+
+export const ARCHIVE_LINK: ViewDef = {
+  name: "Archive",
+  path: "/archive",
+  icon: "📚",
+  description: { zh: "文章归档", en: "Article archive" },
+};
 
 export interface CapabilitiesPayload {
   protocol: {
