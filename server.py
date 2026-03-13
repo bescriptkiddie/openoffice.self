@@ -130,7 +130,7 @@ def sha256_text(s: str) -> str:
 
 LLM_BASE_URL = (os.environ.get("SELFWARE_LLM_BASE_URL") or "https://api.stepfun.com/v1").rstrip("/")
 LLM_MODEL = os.environ.get("SELFWARE_LLM_MODEL") or "step-3.5-flash"
-LLM_API_KEY = os.environ.get("SELFWARE_LLM_API_KEY") or "7pk7WaK8CKDpwr6wVx6oUA6HmT6aqcuKfscmYc3Nhb0rz7SXxOwfk5q6YVm5y00VD"
+LLM_API_KEY = os.environ.get("SELFWARE_LLM_API_KEY") or ""
 
 
 def strip_markdown_fences(text: str) -> str:
@@ -904,8 +904,8 @@ if __name__ == "__main__":
     if not os.path.exists(CANONICAL_PATH):
         print(f"Warning: {CANONICAL_PATH} not found in current directory.")
 
-    bind_host = os.environ.get("SELFWARE_HOST") or "0.0.0.0"
-    display_host = bind_host if bind_host != "0.0.0.0" else "115.191.49.124"
+    bind_host = os.environ.get("SELFWARE_HOST") or "127.0.0.1"
+    display_host = bind_host if bind_host != "0.0.0.0" else "127.0.0.1"
     base_url = f"http://{display_host}:{PORT}"
     if PORT != DEFAULT_PORT and len(sys.argv) < 2 and not (os.environ.get("SELFWARE_PORT") or os.environ.get("AUDP_PORT") or os.environ.get("PORT")):
         print(f"⚠️  Port {DEFAULT_PORT} is in use; switched to {PORT}")

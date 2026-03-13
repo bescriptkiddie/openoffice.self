@@ -403,3 +403,92 @@ paths: ["content/selfware_demo.md"]
 summary: "Translated the English description of Selfware's unified file protocol to Chinese within the blockquote."
 rollback_hint: "git checkout -- content/selfware_demo.md"
 ```
+
+---
+
+## id: chg-20260312-125424-import
+
+```yaml
+id: "chg-20260312-125424-import"
+timestamp: "2026-03-12T12:54:24Z"
+actor: "user+agent"
+intent: "import_markdown"
+paths:
+  - "content/articles/人人都在装龙虾，但装完之后能干嘛？.md"
+  - "content/memory/changes.md"
+summary: "导入文章《人人都在装龙虾，但装完之后能干嘛？》，讨论AI Agent（龙虾）现象、商业价值、生态机会等关键主题。"
+rollback_hint: "git checkout -- content/articles/人人都在装龙虾，但装完之后能干嘛？.md"
+```
+
+---
+
+## id: chg-20260312-125710-import
+
+```yaml
+id: "chg-20260312-125710-import"
+timestamp: "2026-03-12T12:57:10Z"
+actor: "user+agent"
+intent: "import_markdown"
+paths:
+  - "content/articles/人人都在装龙虾，但装完之后能干嘛？.md"
+  - "content/memory/changes.md"
+summary: "导入关于'龙虾'(OpenClaw)现象的文章，分析其流行原因、情绪与商业价值、生态空白及未来机会。源文件：人人都在装龙虾，但装完之后能干嘛？.md"
+rollback_hint: "git checkout -- content/articles/人人都在装龙虾，但装完之后能干嘛？.md"
+```
+
+---
+
+## id: chg-20260312-140203-chat_edit
+
+```yaml
+id: "chg-20260312-140203-chat_edit"
+timestamp: "2026-03-12T14:02:03Z"
+actor: "user+agent"
+intent: "将'过程简化与价值聚焦'的思考融入文章，强调AI Agent时代应忽略过程、专注价值创造"
+paths: ["content/selfware_demo.md"]
+summary: "在'记忆工程'文章中新增第5节，引用'龙虾'比喻和电商网站例子，阐述新时代技术过程可被自动化忽略，应聚焦于'装完工具后能干嘛'的价值创造问题"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```
+
+---
+
+## id: chg-20260312-140525-chat_edit
+
+```yaml
+id: "chg-20260312-140525-chat_edit"
+timestamp: "2026-03-12T14:05:25Z"
+actor: "user+agent"
+intent: "用户评论'不知道干嘛，说明生态还是空的'这个观察很仔细，但未提供明确编辑指令"
+paths: []
+summary: "用户对某个观察表示赞赏，但未给出具体修改指示，因此 canonical content 未作变更"
+rollback_hint: "无需回滚，内容未修改"
+```
+
+---
+
+## id: chg-20260312-140710-chat_edit
+
+```yaml
+id: "chg-20260312-140710-chat_edit"
+timestamp: "2026-03-12T14:07:10Z"
+actor: "user+agent"
+intent: "将关于吃到红利的表述修改为'真正能吃到红利的，永远是最先感知到商业价值的人'"
+paths: ["content/selfware_demo.md"]
+summary: "在'过程简化与价值聚焦'章节，将'未来真正吃到红利的人，不一定是最早装工具的人，而是最早回答那个问题的人'改为'真正能吃到红利的，永远是最先感知到商业价值的人'，使观点更简洁有力。"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```
+
+---
+
+## id: chg-20260312-171036-chat_edit
+
+```yaml
+id: "chg-20260312-171036-chat_edit"
+timestamp: "2026-03-12T17:10:36Z"
+actor: "user+agent"
+intent: "将'未来真正吃到红利的人'段落替换为'未来能吃到红利的，永远是能够快速找到自己的定位的人'"
+paths:
+  - "content/selfware_demo.md"
+summary: "替换了关于'吃到红利'的结论句，强调快速找到定位而非最早装龙虾或回答问题"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```
