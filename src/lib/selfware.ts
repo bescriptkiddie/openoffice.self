@@ -143,6 +143,16 @@ export function writeChangeRecord(changeYaml: string, contentPath?: string): voi
   );
 
   writeFileSync(fullPath, existing + record, "utf-8");
+
+  if (memPath !== MEMORY_CHANGES_PATH) {
+    const globalPath = join(PROJECT_ROOT, MEMORY_CHANGES_PATH);
+    let globalExisting = existsSync(globalPath) ? readFileSync(globalPath, "utf-8") : "";
+    globalExisting = globalExisting.replace(
+      /^(\s*updated_at:\s*)"[^"]*"/m,
+      `$1"${nowIsoUpdate}"`
+    );
+    writeFileSync(globalPath, globalExisting + record, "utf-8");
+  }
 }
 
 export function appendActionRecord(entry: string): void {

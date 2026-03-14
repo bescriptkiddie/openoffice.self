@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useLang, useToast } from "@/lib/hooks";
 import { t } from "@/lib/i18n";
 
@@ -14,6 +15,7 @@ type SaveTarget = "canonical" | "article";
 export default function ImportModal({ open, onClose }: Props) {
   const { lang } = useLang();
   const toast = useToast();
+  const router = useRouter();
   const [content, setContent] = useState("");
   const [filename, setFilename] = useState("");
   const [saveAs, setSaveAs] = useState<SaveTarget>("article");
@@ -68,17 +70,15 @@ export default function ImportModal({ open, onClose }: Props) {
       }
 
       const data = await res.json();
-      setResult(
-        lang === "zh"
-          ? `✅ 导入成功！已保存到 ${data.path}`
-          : `✅ Imported successfully! Saved to ${data.path}`
-      );
       toast.show(lang === "zh" ? "导入成功" : "Import successful");
 
       // Notify content update
       window.dispatchEvent(
         new CustomEvent("selfware-content-updated", { detail: "refresh" })
       );
+
+      onClose();
+      router.push(`/doc?path=${encodeURIComponent(data.path)}`);
     } catch (err) {
       setResult(
         `❌ ${err instanceof Error ? err.message : String(err)}`

@@ -194,6 +194,12 @@ ${protocolText ? `## Reference — Selfware Protocol (excerpt):\n${protocolText.
     });
 
     const llmData = await llmRes.json();
+
+    if (!llmRes.ok) {
+      const errMsg = llmData?.error?.message || llmData?.message || JSON.stringify(llmData);
+      throw new Error(`LLM API error (${llmRes.status}): ${errMsg}`);
+    }
+
     let rawOutput = llmData?.choices?.[0]?.message?.content || "";
 
     // Strip code fences if present

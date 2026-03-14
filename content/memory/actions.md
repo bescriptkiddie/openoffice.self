@@ -7,7 +7,7 @@ selfware:
   update_policy: append_only
   owner: user
   created_at: "2026-03-13T15:00:00Z"
-  updated_at: "2026-03-13T15:00:00Z"
+  updated_at: "2026-03-14T11:49:05Z"
 ---
 
 # Actions
@@ -92,3 +92,53 @@ selfware:
 - URL 参数 `?lang=en` 切换语言
 - 内容文件语言变体：`selfware_demo.md`（zh）、`selfware_demo.en.md`（en）
 - 翻译字符串通过 `t(key, lang)` 函数获取
+
+---
+
+## 2026-03-14T11:36:42Z — 新增内容: test.md
+
+- **路径**: `content/articles/test.md`
+- **类型**: 文章 (content/articles/)
+- **来源**: 用户导入
+- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
+- **记忆文件**: `content/articles/test.memory.md`
+
+---
+
+## 2026-03-14T11:41:08Z — 新增内容: test.md
+
+- **路径**: `content/articles/test.md`
+- **类型**: 文章 (content/articles/)
+- **来源**: 用户导入
+- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
+- **记忆文件**: `content/articles/test.memory.md`
+
+---
+
+## 2026-03-14T11:42:11Z — 新增内容: OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.md
+
+- **路径**: `content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.md`
+- **类型**: 文章 (content/articles/)
+- **来源**: 用户导入
+- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
+- **记忆文件**: `content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.memory.md`
+
+---
+
+## 2026-03-14T11:45:02Z — 新增内容: test-debug.md
+
+- **路径**: `content/articles/test-debug.md`
+- **类型**: 文章 (content/articles/)
+- **来源**: 用户导入
+- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
+- **记忆文件**: `content/articles/test-debug.memory.md`
+
+---
+
+## 2026-03-14T11:48:14Z — 新增内容: OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.md
+
+- **路径**: `content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.md`
+- **类型**: 文章 (content/articles/)
+- **来源**: 用户导入
+- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
+- **记忆文件**: `content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.memory.md`
