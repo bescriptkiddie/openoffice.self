@@ -7,7 +7,7 @@ selfware:
   update_policy: append_only
   owner: user
   created_at: "2026-02-21T10:27:24Z"
-  updated_at: "2026-03-14T13:44:26Z"
+  updated_at: "2026-03-14T14:01:04Z"
 ---
 
 # Change Records
@@ -519,4 +519,33 @@ intent: "删除选中的YAML front matter元数据"
 paths: ["content/selfware_demo.md"]
 summary: "删除了文档开头的YAML front matter元数据块，保留了正文内容。"
 rollback_hint: "git checkout -- content/selfware_demo.md"
+```
+
+---
+
+## id: chg-20260314-135737-chat_edit
+
+```yaml
+id: "chg-20260314-135737-chat_edit"
+timestamp: "2026-03-14T13:57:37Z"
+actor: "user+agent"
+intent: "用户认为OpenClaw火爆只是AgentOS预热，修改相关表述"
+paths: ["content/selfware_demo.md"]
+summary: "修改第1.1节核心定位表述，将'抢占Agent OS入口的竞争'改为'只是Agent OS的预热'，以反映用户观点认为这仅是开始而非真正竞争"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```
+
+---
+
+## id: chg-20260314-140104-export_self
+
+```yaml
+id: "chg-20260314-140104-export_self"
+timestamp: "2026-03-14T14:01:04Z"
+actor: "user"
+intent: "export_as_self_container"
+paths:
+  - "content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.md"
+summary: "Exported OpenClaw-与-Agent-OS：从入口争夺到信任体系构建 as .self container with views, runtime, and memory."
+rollback_hint: "n/a (read-only operation)"
 ```
