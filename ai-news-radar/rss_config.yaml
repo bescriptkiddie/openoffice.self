@@ -1,0 +1,83 @@
+rss_feeds:
+- name: Folo - 科技
+  url: https://rsshub.app/folo/technology
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: Folo - AI
+  url: https://rsshub.app/folo/ai
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: Folo - 编程
+  url: https://rsshub.app/folo/programming
+  enabled: false
+- name: 语鲸 - AI前线
+  url: https://rsshub.app/yuque/ai-frontier
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: 语鲸 - 今日热点
+  url: https://rsshub.app/yuque/hot
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: InfoQ 推荐
+  url: https://www.infoq.cn/feed
+  enabled: true
+- name: 36氪
+  url: https://36kr.com/feed
+  enabled: true
+- name: 少数派
+  url: https://sspai.com/feed
+  enabled: true
+- name: 量子位
+  url: https://rsshub.app/wechat/ce/MzIzOTU0NTc0OQ==
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: 机器之心
+  url: https://rsshub.app/wechat/ce/MzA3MzI4MjgzMw==
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: PaperWeekly
+  url: https://rsshub.app/wechat/ce/MzA5ODUxMzcwMA==
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: AI前线
+  url: https://rsshub.app/wechat/ce/MzUyMDE4MjMyNw==
+  enabled: false
+  note: rsshub.app 暂时不可用
+- name: Reddit - MachineLearning
+  url: https://www.reddit.com/r/MachineLearning/.rss
+  enabled: false
+- name: Reddit - LocalLLaMA
+  url: https://www.reddit.com/r/LocalLLaMA/.rss
+  enabled: false
+- name: 小互AI
+  url: https://PLACEHOLDER_UPDATE_ME/小互AI
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: 记忆承载
+  url: https://PLACEHOLDER_UPDATE_ME/记忆承载
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: jackywine
+  url: https://PLACEHOLDER_UPDATE_ME/jackywine
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: 花叔
+  url: https://PLACEHOLDER_UPDATE_ME/花叔
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: 数字生命卡兹克
+  url: https://PLACEHOLDER_UPDATE_ME/数字生命卡兹克
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: 归藏的AI工具箱
+  url: https://PLACEHOLDER_UPDATE_ME/归藏的AI工具箱
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: 一支烟花AI
+  url: https://PLACEHOLDER_UPDATE_ME/一支烟花AI
+  enabled: false
+  note: 请替换为实际的 RSS 链接
+- name: 向阳乔木
+  url: https://PLACEHOLDER_UPDATE_ME/向阳乔木
+  enabled: false
+  note: 请替换为实际的 RSS 链接

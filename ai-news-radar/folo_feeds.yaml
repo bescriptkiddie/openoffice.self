@@ -1,0 +1,84 @@
+# Folo RSS 订阅配置
+# 复制以下内容到你的 Folo 或 rss_config.yaml
+
+rss_feeds:
+  # ========== 你的 8 个公众号（通过 Folo 订阅后获取 RSS） ==========
+  
+  # 小互AI - AI绘画/工具博主
+  # Folo 搜索: https://follow.is/?search=小互AI
+  - name: "小互AI"
+    url: "https://rsshub.app/folo/小互AI"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # 记忆承载 - 深度思考/职场
+  # Folo 搜索: https://follow.is/?search=记忆承载
+  - name: "记忆承载"
+    url: "https://rsshub.app/folo/记忆承载"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # jackywine - 产品/AI
+  # Folo 搜索: https://follow.is/?search=jackywine
+  - name: "jackywine"
+    url: "https://rsshub.app/folo/jackywine"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # 花叔 - AI工具
+  # Folo 搜索: https://follow.is/?search=花叔
+  - name: "花叔"
+    url: "https://rsshub.app/folo/花叔"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # 数字生命卡兹克 - AI/科技
+  # Folo 搜索: https://follow.is/?search=数字生命卡兹克
+  - name: "数字生命卡兹克"
+    url: "https://rsshub.app/folo/数字生命卡兹克"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # 归藏的AI工具箱 - AI工具
+  # Folo 搜索: https://follow.is/?search=归藏的AI工具箱
+  - name: "归藏的AI工具箱"
+    url: "https://rsshub.app/folo/归藏的AI工具箱"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # 一支烟花AI - AI绘画
+  # Folo 搜索: https://follow.is/?search=一支烟花AI
+  - name: "一支烟花AI"
+    url: "https://rsshub.app/folo/一支烟花AI"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+    
+  # 向阳乔木 - AI/产品
+  # Folo 搜索: https://follow.is/?search=向阳乔木
+  - name: "向阳乔木"
+    url: "https://rsshub.app/folo/向阳乔木"  # ← 订阅后在 Folo 中复制实际 RSS
+    enabled: false
+    note: "请在 Folo 中订阅后更新此链接"
+
+# ========== Folo 订阅步骤 ==========
+#
+# 1. 打开 https://follow.is
+# 2. 登录你的账号
+# 3. 在搜索框输入公众号名称，如 "小互AI"
+# 4. 点击「订阅」按钮
+# 5. 进入「订阅管理」→ 找到该公众号 → 点击「RSS」图标
+# 6. 复制 RSS 链接（格式：https://rsshub.app/folo/xxxxx）
+# 7. 替换上面配置文件中的 url
+# 8. 将 enabled: false 改为 enabled: true
+#
+# ========== 快捷方式 ==========
+# 
+# 直接访问 Folo 搜索链接：
+# - 小互AI: https://follow.is/?search=小互AI
+# - 记忆承载: https://follow.is/?search=记忆承载
+# - jackywine: https://follow.is/?search=jackywine
+# - 花叔: https://follow.is/?search=花叔
+# - 数字生命卡兹克: https://follow.is/?search=数字生命卡兹克
+# - 归藏的AI工具箱: https://follow.is/?search=归藏的AI工具箱
+# - 一支烟花AI: https://follow.is/?search=一支烟花AI
+# - 向阳乔木: https://follow.is/?search=向阳乔木

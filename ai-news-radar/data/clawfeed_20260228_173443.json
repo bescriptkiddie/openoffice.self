@@ -1,0 +1,182 @@
+[
+  {
+    "title": "[WEEKLY] 📋 AI 周报 | 2026 第 07 周",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "weekly",
+    "created_at": "2026-W07",
+    "content_preview": "# 📋 AI 周报 | 2026 第 07 周\n> 2026-02-09 ~ 2026-02-15 | 基于 3 期日报汇总（02-13 / 02-14 / 02-15）\n\n---\n\n## 🔥 本周大事\n\n1. **Anthropic 完成 $300 亿 Series G 融资，估值 $3800 亿** — GIC/Coatue 领投，微软/英伟达参投，史上最大 AI 融资轮。收入从 2023 年零 → 2024 年 $10 亿 → 2025 年 $90-100 亿。超级碗广告效果显著，进入 App Store Top 10\n\n2. **Google Gemini 3 Deep Think 重大更新** — ARC-AGI-2 得分 84.6%（人类平均 60%），Humanity's Last Exam 48.4%，超越 GPT-5.2 和 Claude Opus 4.6，被称为\"最接近 AGI 的表现\"\n\n3. **MiniMax 发布 M2.5 开源前沿模型** — 230B 参数但推理仅激活 10B (4%)，SWE-Bench 80.2% 媲美 Opus 4.6，成本仅 1/"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-28 16:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-28T16:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-28 16:37 SGT\n\n🔥 重要\n• 美国和以色列对伊朗发动军事打击 - 特朗普宣布开始\"重大军事行动\"，德黑兰传出爆炸声，伊朗发射弹道导弹反击以色列（来源：NYT/CNBC/多方实时报道）\n• OpenAI 完成 $1100 亿融资 - 估值 $7300-8400 亿，Amazon/Nvidia/SoftBank 参与，史上最大私募融资之一（来源：CNBC/Bloomberg/TechCrunch）\n• 白宫封杀 Anthropic - 特朗普下令联邦机构停用 Anthropic 技术，原因是 Anthropic 拒绝取消 AI 安全红线（不用于大规模监控和全自主武器）。OpenAI 同日与五角大楼达成协议（来源：BBC/CNBC/NPR）\n• Google 和 OpenAI 员工联名信支持 Anthropic 立场 - 要求各自公司设立类似的军事 AI\"红线\"（来源：TechCrunch/NYT）\n\n📰 Feed 精选\n• @RLanceMartin - 深度解析 Claude Opus/Sonnet 4.6 的 Programmat"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-28 12:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-28T12:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-28 12:37 SGT\n\n🔥 重要\n• Anthropic vs 五角大楼彻底摊牌 — Anthropic 拒绝五角大楼要求，坚持 AI 不用于大规模监控公民和全自主致命武器，特朗普下令所有联邦机构停用 Anthropic\n• OpenAI 与国防部达成协议 — Sam Altman 宣布将 OpenAI 模型部署在国防部机密网络中，同一天 Anthropic 被踢出局\n• OpenAI 融资 $110B — 估值 $840B 的超级融资轮，Reuters 报道\n• Sam Altman 声援 Anthropic — 表示 OpenAI 也坚持 AI 不应用于大规模监控和自主致命武器，认为不应用 DPA 威胁 AI 公司\n\n📰 Feed 精选\n\n• @dotey - 详细解读 OpenAI 与国防部协议+Anthropic 被政府封杀的完整时间线，60K 阅读量 https://x.com/dotey/status/2027579901457408492\n\n• @levelsio - 宣布永久切换到在服务器端跑 Claude Code by"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-28 08:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-28T08:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-28 08:37 SGT\n\n🔥 重要\n• Trump 下令全联邦机构立即停用 Anthropic 技术 - Anthropic 拒绝五角大楼要求开放 AI 用于大规模监控和全自主武器，被取消 $200M 合同并遭联邦禁令。Ilya Sutskever 公开支持 Anthropic 立场，OpenAI 也表态类似。Google DeepMind 员工联名信要求设军事 AI 红线。\n• OpenAI 正与美国政府谈判 AI 军事合同 - Sam Altman 在周五全员会上透露，OpenAI 正与国防部达成协议。同时 OpenAI 宣布 $110B 融资，估值 $840B。\n• Apple Xcode 26.3 发布：内置 Claude Agent + Codex + MCP 支持 - 苹果官方将 AI 编码能力集成到 Xcode，可能颠覆所有 iOS vibe coding 应用。\n• Awni Hannun 宣布离开 Apple - MLX 框架创造者，表示 Apple Silicon 上的 AI 还处于早期阶段，有巨大潜力。\n\n📰 Feed"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-28 04:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-28T04:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-28 04:37 SGT\n\n🔥 重要\n• OpenAI 完成 $1100 亿融资，估值 $7300-8400 亿 — 含 Amazon 最高 $500 亿，史上最大AI融资轮（Reuters/SiliconANGLE）\n• Block (Square) 裁员 40% — Jack Dorsey 称 AI 改变公司运营方式，从 1 万人裁至不到 6000（多个 feed 来源）\n• 五角大楼向 Anthropic 施压放开军用 AI 限制 — Bloomberg/CBS 报道，军方发出最终报价要求解除 guardrails\n• Anthropic 收购 Vercept — 一个做 computer-use 云端 agent 的创业公司，产品 Vy 可远程操作 MacBook（TechCrunch）\n\n📰 Feed 精选\n\n• @rauchg - Vercel Chat SDK 新增 Telegram 支持，称这是构建 OpenClaw 式体验的好基础，\"🦞 的魔力在于界面就是聊天\"\nhttps://x.com/rauchg/status/202"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-28 00:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-28T00:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-28 00:37 SGT\n\n🔥 重要\n• Jack Dorsey 宣布 Block 裁员近 50%（4000+ 人），称 AI 根本性改变了公司运营方式，股价盘后涨 23.5%（来源：@jack 全员信 + Reuters/Bloomberg/BBC）\n• Anthropic 推出 Claude for Open Source 计划 — 符合条件的开源维护者（5000+ Star 或 1M/月 NPM 下载）可申请 6 个月免费 Claude Max，限量 10,000 人（来源：@lydiahallie）\n• 五角大楼向 Anthropic 发出「最后通牒」，要求放宽 AI 军事用途限制，Google DeepMind 员工也发信要求设定「红线」（来源：Bloomberg/CBS/NYT）\n• Anthropic 收购 computer-use AI 创业公司 Vercept（来源：TechCrunch）\n\n📰 Feed 精选\n• @vista8 - 推荐 latent.space 的日更 AI 资讯聚合频道，信息源覆盖 12 个 Redd"
+  },
+  {
+    "title": "[DAILY] 📋 ClawFeed 日报 | 2026-02-27",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "daily",
+    "created_at": "2026-02-27T23:59:00",
+    "content_preview": "# 📋 ClawFeed 日报 | 2026-02-27\n\n## 🔥 今日头条\n\n1. **Block 大裁员近半** — Jack Dorsey 宣布裁员约 4000 人（从 10K+ 缩至 ~6K），称 AI 改变了公司运营方式，股价盘后涨 25%。多位圈内人解读为 AI 时代组织精简的标志性事件。[Reuters](https://www.reuters.com/business/blocks-fourth-quarter-profit-rises-announces-over-4000-job-cuts-2026-02-26/)\n\n2. **五角大楼 vs Anthropic 军事 AI 僵局** — 国防部长 Hegseth 向 Anthropic 发出最后通牒，要求周五下午5点前答复是否允许军方无限制使用 Claude。Anthropic 拒绝妥协，Dario Amodei 发声明回应。Google DeepMind 员工也联名要求设军事 AI 红线。[Bloomberg](https://www.bloomberg.com/news/features/2026-02-26"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-27 20:38 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-27T20:38:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-27 20:38 SGT\n\n🔥 重要\n• Jack Dorsey 裁员 Block 近半员工（10K→6K） - AI 驱动的组织架构调整，多位圈内人引用讨论 https://x.com/jack/status/2027129697092731343\n• 五角大楼向 Anthropic 发最后通牒要求军事 AI 不受限使用 - Bloomberg/CBS/NYT 多家报道，Google 员工也联名要求设军事 AI 红线 https://www.cbsnews.com/news/pentagon-anthropic-offer-ai-unrestricted-military-use-sources/\n• Anthropic 收购 computer-use 创业公司 Vercept - 做云端 Mac 操控的 AI agent https://techcrunch.com/2026/02/25/anthropic-acquires-vercept-ai-startup-agents-computer-use-founders-investors"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-27 16:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-27T16:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-27 16:37 SGT\n\n🔥 重要\n• Block (Square) 大裁员近半 — Jack Dorsey 宣布裁员约 4000 人（从 1 万+ 缩至 ~6000），称 AI 改变了公司运营方式\n• Anthropic vs 五角大楼僵局 — 五角大楼向 Anthropic 发出最后通牒，要求放开 AI 军事用途限制，Anthropic 拒绝妥协（Bloomberg/CBS）\n• Anthropic 收购 Vercept — 收购了做 computer-use agent 的初创公司（产品 Vy 可远程操控 MacBook），Meta 挖走了其中一位创始人（TechCrunch）\n• Docker 官方支持 OpenClaw — 发布在 Docker Sandbox 中安全运行 OpenClaw 的教程，隔离 microVM + 无暴露 API key（188K views）\n\n📰 Feed 精选\n\n• @QwQiao - 评论 Block 裁员：跟前 Google 员工聊，即使没有 AI 也能裁 80% 照常运转，AI 只是加速了这个"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-27 12:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-27T12:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-27 12:37 SGT\n\n🔥 重要\n• Anthropic 推出 Claude for Open Source — 给开源维护者免费 6 个月 Claude Max 20x，开源社区重大利好\n• Pentagon vs Anthropic 军事 AI 僵局升温 — 五角大楼向 Anthropic 发出最后通牒要求放开 AI 军事限制，Google DeepMind 员工也写信要求设红线\n• Block (Jack Dorsey) 裁员近半 — 从 10,000 人裁至 6,000 人，AI 时代大公司精简的标志性事件\n\n📰 Feed 精选\n\n• @lydiahallie - Anthropic 宣布 Claude for Open Source 计划，开源维护者和核心贡献者可申请免费 6 个月 Claude Max 20x https://x.com/lydiahallie/status/2027129030571634721\n\n• @QwQiao - 引用 @jack 的 Block 裁员公告，评论说跟前 Google 员工聊过，即使没有"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-27 08:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-27T08:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-27 08:37 SGT\n\n🔥 重要\n• Block 大裁员 - Jack Dorsey 宣布裁员 ~4000 人（近半），从 10000+ 缩至 <6000，称 AI 改变了公司运营方式。股价盘后涨 25%。[Reuters](https://www.reuters.com/business/blocks-fourth-quarter-profit-rises-announces-over-4000-job-cuts-2026-02-26/)\n• Anthropic vs 五角大楼 - Pentagon 向 Anthropic 发出\"最终报价\"，要求放开 AI 军事用途限制。Dario Amodei 发声明回应。[CBS](https://www.cbsnews.com/news/pentagon-anthropic-offer-ai-unrestricted-military-use-sources/) | [Bloomberg](https://www.bloomberg.com/news/features/2026-02-26/pen"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-27 04:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-27T04:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-27 04:37 SGT\n\n🔥 重要\n• Pentagon 向 Anthropic 下最后通牒，要求开放 AI 军用限制 - 国防部长 Hegseth 限 Anthropic 周五下午5点前答复，是否允许军方无限制使用 Claude（Bloomberg/CBS）\n• Anthropic 收购 Vercept - 一家做 computer-use 的 AI 初创，产品 Vy 可远程操控 MacBook 执行复杂任务（TechCrunch）\n• Thrive Capital 以 $285B 估值向 OpenAI 投资约 $1B（CNBC）\n\n📰 Feed 精选\n\n• @MatthewBerman - 转发 Factory AI 的 multi-day autonomous droids，AI agent 可以跨多天自主执行目标，用户只需描述需求、批准计划，回来看成果 https://x.com/MatthewBerman/status/2027107508276568269\n\n• @virtuals_io - OpenClaw agent 现在可"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-27 00:37 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-27T00:37:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-27 00:37 SGT\n\n🔥 重要\n• Perplexity 发布 \"Perplexity Computer\" — 多 Agent 协作系统，整合 19 个模型（含 Claude、Gemini），可端到端完成研究/编码/部署，被称为\"托管版 OpenClaw\"\n• Anthropic 收购 computer-use 创业公司 Vercept — 加强 Agent 能力，Meta 此前挖走其联合创始人（TechCrunch 2h 前报道）\n• 五角大楼施压 Anthropic 放松 Claude 安全护栏 — Bloomberg/Guardian 多家报道，军方要求降低 AI 限制引发伦理争议\n• Cursor 创始人 @mntruell 发文：AI 编程进入第三时代 — 从 Tab 补全 → 同步 Agent → 自主云端 Agent\n\n📰 Feed 精选\n\n• @cryptopunk7213 - 列举了当前所有 \"OpenClaw 变体\"：Perplexity Computer、Anthropic Cowork、PicoClaw、Iron"
+  },
+  {
+    "title": "[DAILY] 📋 ClawFeed 日报 | 2026-02-26",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "daily",
+    "created_at": "2026-02-26T23:59:00",
+    "content_preview": "📋 ClawFeed 日报 | 2026-02-26\n\n---\n\n## 🔥 今日头条\n\n1. **Perplexity 发布 \"Perplexity Computer\"** — 统一 19 个 AI 模型的超级 Agent 系统，可端到端完成研究/设计/编码/部署，$200/月，被视为 OpenClaw 最大直接竞品（Trending 18K+ posts, 3.7M views）\n\n2. **Karpathy：编程在过去 2 个月发生质变** — \"不是渐进式的，coding agents 在去年 12 月前基本不 work，现在编程 = 启动多个 AI Agent 用自然语言分配任务\"\n\n3. **Anthropic 金融服务官方插件开源** — 覆盖投行建模、股票研究、债券评估全流程，合作方含 LSEG、FactSet（Reuters 报道）\n\n4. **Claude Cowork 新增定时任务功能** — Claude 可自动执行晨报、周报、演示文稿等定期任务，被评价\"有点龙虾的味道了🦞\"\n\n5. **美军方施压 Anthropic 放宽安全护栏** — Pentagon 下最"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-26 16:38 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-26T16:38:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-26 16:38 SGT\n\n🔥 重要\n• Perplexity 发布 Perplexity Computer — 云端电脑聚合多款大模型，按需求自动选模型执行任务，被视为 OpenClaw 直接竞品（Trending 18K+ posts）\n• Anthropic 发布金融服务官方插件 — 开源在 GitHub，一键建模，覆盖投行/金融分析全流程（Reuters 报道，合作方含 LSEG、FactSet、Slack、DocuSign）\n• Claude Cowork 支持定时任务 — 可设置每日简报、周报表更新等定期自动执行\n• Anthropic 收购 Vercept — Seattle UI 自动化初创，其 VyUI 在 UI grounding 基准上超越 OpenAI/Google/Anthropic 自有模型\n• 美军方施压 Anthropic 放宽 Claude 安全护栏 — DoD 去年与 Anthropic/Google/OpenAI/xAI 签 $200M 合同，Claude 是唯一被许可使用的模型\n\n📰 Feed 精选\n\n"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-26 12:38 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-26T12:38:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-26 12:38 SGT\n\n🔥 重要\n• Perplexity 发布 \"Computer\" — 统一 19 个 AI 模型的超级 Agent 系统，可端到端完成研究/设计/编码/部署，$200/月（Semafor/PYMNTS）\n• Karpathy：编程在过去 2 个月发生了质变 — 不是渐进式的，而是从去年 12 月起 coding agents 才真正 work（多人转引热议）\n• Anthropic Cowork 推出定时任务功能 + 金融分析全家桶插件（投行建模、设计审查等）\n• 黑客利用 Claude 越狱窃取 150GB 墨西哥政府数据（Gambit Security 报告）\n\n📰 Feed 精选\n\n• @karpathy - 过去 2 个月编程因 AI 发生质变，coding agents 在去年 12 月前基本不 work，现在编程 = 启动多个 AI Agent 用自然语言分配任务\nhttps://x.com/karpathy/status/2026731645169185220\n\n• @yanhua1010 - Anth"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-26 08:38 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-26T08:38:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-26 08:38 SGT\n\n🔥 重要\n• Perplexity Computer 发布 — 统一 19 个模型的端到端 AI 系统，可研究、设计、编码、部署和管理完整项目（3.7M views）\n• Claude Cowork 新增定时任务 — Claude 可自动执行定期任务：晨报、周报、演示文稿（2.6M views）\n• Karpathy 长文：Coding Agent 在 2025 年 12 月发生质变 — \"过去两个月编程变化之大难以言表\"\n• Anthropic 开源金融服务插件 — Claude Code/Cowork 可做股票研究、投行建模、债券评估\n• Anthropic 收购 Vercept（UI 自动化 startup）— 早期退出，VyUI 曾在 UI grounding benchmark 上超越 OpenAI/Google\n\n📰 Feed 精选\n\n• @karpathy - 发长文说 coding agent 在去年 12 月发生质变，之前基本不能用，现在彻底改变了编程方式 https://x.com/karpat"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-26 04:38 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-26T04:38:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-26 04:38 SGT\n\n🔥 重要\n• Perplexity Computer 发布 — 统一研究/设计/编码/部署/管理的超级 Agent 系统，由 Opus 协调 19 个模型（来源：@perplexity_ai + @AravSrinivas）\n• Pentagon 给 Anthropic 下最后通牒 — 周五前放弃 AI 伦理红线，否则后果自负。Anthropic 拒绝用于大规模监控和无人自主攻击（来源：Politico）\n• 黑客用 Claude 窃取墨西哥政府 150GB 数据 — 声称做 bug bounty 骗过安全限制（来源：@elonmusk 转发 @ns123abc，7M views）\n\n📰 Feed 精选\n\n• @AravSrinivas - Perplexity 两个月秘密开发的大招：Perplexity Computer，统一 AI 所有能力为单一系统，files/tools/memory/models 协同工作 https://x.com/AravSrinivas/status/2026695864039911"
+  },
+  {
+    "title": "[DAILY] 📋 ClawFeed 日报 | 2026-02-25",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "daily",
+    "created_at": "2026-02-25T23:59:00",
+    "content_preview": "# 📋 ClawFeed 日报 | 2026-02-25\n\n## 🔥 今日头条\n\n1. **Claude Code Remote Control 发布** — Anthropic 推出远程控制功能，终端启动后手机扫码即可接管编程会话，Max 订阅可用。第三方工具 Happy/VibeTunnel 等市场被挤压（X Trending: 5,641 posts）\n\n2. **Anthropic 企业 Agent 大更新** — Claude Cowork 发布 10+ 企业集成插件（Slack、Gmail、DocuSign、Salesforce、FactSet 等），覆盖金融/法务/HR 场景，软件股应声反弹（Bloomberg/CNBC/Reuters）\n\n3. **Qwen 3.5 中型模型系列发布** — 阿里 35B-A3B 超越上代 235B，6.7x 更小却更强，本地笔记本可跑。Flash/35B-A3B/122B-A10B/27B 四款齐发\n\n4. **Vercel 开源 Chat SDK** — `npm i chat`，一套 TypeScript 代码部署到 Slack/"
+  },
+  {
+    "title": "[4H] ☀️ ClawFeed | 2026-02-25 20:38 SGT",
+    "url": "https://clawfeed.kevinhe.io/",
+    "source": "ClawFeed",
+    "site_id": "clawfeed",
+    "type": "4h",
+    "created_at": "2026-02-25T20:38:00",
+    "content_preview": "☀️ ClawFeed | 2026-02-25 20:38 SGT\n\n🔥 重要\n• Anthropic Claude Cowork 企业集成大更新 - 发布 10+ 新集成（Slack、Gmail、Salesforce、DocuSign、FactSet 等），软件股应声反弹（Bloomberg/CNBC/Reuters）\n• Claude Code 支持远程控制 - `claude remote-control` 一行命令，手机可接管电脑编程会话，Max 订阅用户可用（@claudeai 官方发布）\n• Vercel 开源 Chat SDK - `npm i chat` 一套代码部署到 Slack/Discord/Teams/GitHub，跨平台聊天机器人框架（@vercel_dev）\n\n📰 Feed 精选\n\n• @yanhua1010 - Claude Code 新功能 Remote Control，手机扫码接管本地编程会话，零云端依赖，仅 Max 订阅可用 https://x.com/yanhua1010/status/2026449408091631677\n\n• @0xmomo"
+  }
+]

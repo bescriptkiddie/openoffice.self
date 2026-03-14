@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>盖洛普 Gallup - 发现你的优势</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            padding-left: 20px;
+        }
+
+        .card p {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+        }
+
+        .strengths-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .strength-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .strength-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .strength-card h4 {
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .strength-card p {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cta-section h2 {
+            color: #667eea;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .timeline-item {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .timeline-item h4 {
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .timeline-item p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 盖洛普 Gallup</h1>
+            <p>全球领先的管理咨询公司，致力于帮助个人和组织发挥最大潜能。通过科学的分析方法，发现你的独特优势，成就卓越人生。</p>
+        </header>
+
+        <div class="card">
+            <h2>关于盖洛普</h2>
+            <p>盖洛普公司（Gallup, Inc.）由乔治·盖洛普（George Gallup）于1935年创立，总部位于美国华盛顿特区。作为全球最著名的民意调查和管理咨询公司之一，盖洛普以其科学的调查方法和深刻的数据洞察闻名于世。</p>
+            <p>盖洛普的使命是通过研究和分析，帮助全球领导者解决他们面临的最紧迫问题，包括员工敬业度、客户参与度、人才发展和幸福感等关键领域。</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <h3>80+</h3>
+                    <p>年全球研究经验</p>
+                </div>
+                <div class="stat-item">
+                    <h3>160</h3>
+                    <p>服务国家和地区</p>
+                </div>
+                <div class="stat-item">
+                    <h3>3000万+</h3>
+                    <p>完成优势测评人数</p>
+                </div>
+                <div class="stat-item">
+                    <h3>34</h3>
+                    <p>个天赋主题</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>克利夫顿优势识别器 CliftonStrengths</h2>
+            <p>克利夫顿优势识别器是盖洛普最著名的测评工具，由唐纳德·克利夫顿（Donald O. Clifton）博士研发。该测评基于积极心理学，识别出人类天赋的34个主题，帮助人们发现并发挥自身的核心优势。</p>
+            <p>测评将34个优势主题分为四个维度：执行力（Executing）、影响力（Influencing）、关系建立（Relationship Building）和战略思维（Strategic Thinking）。</p>
+            
+            <div class="strengths-grid">
+                <div class="strength-card">
+                    <h4>🎯 成就 Achiever</h4>
+                    <p>内心充满强烈的紧迫感，每天都要有所成就。享受忙碌和完成任务带来的满足感。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🔍 分析 Analytical</h4>
+                    <p>善于通过数据、证据和逻辑来理解事物。追求客观真理，用事实说话。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🌟 前瞻 Futuristic</h4>
+                    <p>对未来充满憧憬和想象。善于描绘愿景，激励他人朝着更好的明天前进。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>💡 理念 Ideation</h4>
+                    <p>擅长概念化和创新思维。能够发现看似无关事物之间的联系，产生新想法。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>❤️ 体谅 Empathy</h4>
+                    <p>能够敏锐地感知他人的情感和需求。善于倾听，给予他人情感支持。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>⚡ 激活 Activator</h4>
+                    <p>行动派，善于将想法转化为行动。相信最好的学习方式就是实践。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🎨 适应 Adaptability</h4>
+                    <p>灵活应变，善于在变化中寻找机会。享受当下，随遇而安。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🔗 关联 Connectedness</h4>
+                    <p>相信万物皆有联系，事件皆有因果。具有全局观，理解事物之间的相互关联。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>盖洛普发展历程</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>1935年</h4>
+                    <p>乔治·盖洛普创立美国公共舆论研究所，开创科学民意调查先河。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>1950年代</h4>
+                    <p>开始为全球企业提供管理咨询服务，将民意调查方法应用于组织管理。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>1999年</h4>
+                    <p>唐纳德·克利夫顿博士出版《现在，发现你的优势》，提出优势心理学理论。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2001年</h4>
+                    <p>推出克利夫顿优势识别器在线测评，至今已帮助超过3000万人发现自身优势。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2016年</h4>
+                    <p>发布《全球职场状况》报告，揭示全球员工敬业度状况，引发广泛关注。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2020年代</h4>
+                    <p>持续创新，将人工智能和大数据技术融入咨询服务，帮助更多组织实现转型。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>核心服务领域</h2>
+            <div class="strengths-grid">
+                <div class="strength-card">
+                    <h4>📊 员工敬业度</h4>
+                    <p>通过Q12测评工具，帮助企业提升员工敬业度，创造高绩效文化。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🌟 优势发展</h4>
+                    <p>基于克利夫顿优势识别器，帮助个人和团队发挥天赋潜能。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🎓 教育咨询</h4>
+                    <p>为教育机构提供学生成功和职业发展方面的专业指导。</p>
+                </div>
+                <div class="strength-card">
+                    <h4>🏛️ 公共事务</h4>
+                    <p>为政府和非营利组织提供民意调查和政策研究服务。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>发现你的优势，开启卓越人生</h2>
+            <p style="color: #666; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                每个人都有独特的天赋和优势。通过克利夫顿优势识别器，
+                发现你最强的5大优势主题，学会如何将它们应用到工作和生活中。
+            </p>
+            <a href="#" class="btn">开始探索你的优势</a>
+        </div>
+
+        <footer>
+            <p>© 2026 盖洛普 Gallup | 发现优势，成就卓越</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">本页面由AI助手小p生成 🐵</p>
+        </footer>
+    </div>
+</body>
+</html>
