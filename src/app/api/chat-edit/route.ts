@@ -30,6 +30,47 @@ function stripMarkdownFences(text: string): string {
   return s;
 }
 
+function contentPartToText(part: unknown): string {
+  if (typeof part === "string") return part;
+  if (!part || typeof part !== "object") return "";
+
+  const p = part as Record<string, unknown>;
+  if (typeof p.text === "string") return p.text;
+  if (typeof p.content === "string") return p.content;
+
+  if (Array.isArray(p.text)) {
+    return p.text
+      .map((item) => contentPartToText(item))
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  return "";
+}
+
+function extractAssistantText(llmData: any): string {
+  const choice = llmData?.choices?.[0];
+  const message = choice?.message;
+
+  if (typeof message?.content === "string") {
+    return message.content;
+  }
+
+  if (Array.isArray(message?.content)) {
+    const joined = message.content
+      .map((part: unknown) => contentPartToText(part))
+      .filter(Boolean)
+      .join("\n");
+    if (joined.trim()) return joined;
+  }
+
+  if (typeof choice?.text === "string") return choice.text;
+  if (typeof llmData?.output_text === "string") return llmData.output_text;
+  if (typeof llmData?.text === "string") return llmData.text;
+
+  return "";
+}
+
 function parseEditResponse(raw: string): {
   content: string;
   reply: string;
@@ -173,11 +214,30 @@ If no changes are needed, still output the original content, then ===REPLY=== ex
     });
 
     const llmData = await llmRes.json();
-    let rawOutput =
-      llmData?.choices?.[0]?.message?.content || "";
+
+    if (!llmRes.ok) {
+      const errMsg =
+        llmData?.error?.message || llmData?.message || JSON.stringify(llmData);
+      throw new Error(`LLM API error (${llmRes.status}): ${errMsg}`);
+    }
+
+    let rawOutput = extractAssistantText(llmData);
     rawOutput = stripMarkdownFences(rawOutput);
 
     if (!rawOutput.trim()) {
+      console.error("chat-edit empty model output", {
+        baseUrl: LLM_BASE_URL,
+        model: LLM_MODEL,
+        responseKeys: llmData && typeof llmData === "object" ? Object.keys(llmData) : [],
+        choiceKeys:
+          llmData?.choices?.[0] && typeof llmData.choices[0] === "object"
+            ? Object.keys(llmData.choices[0])
+            : [],
+        messageKeys:
+          llmData?.choices?.[0]?.message && typeof llmData.choices[0].message === "object"
+            ? Object.keys(llmData.choices[0].message)
+            : [],
+      });
       throw new Error("Model returned empty content");
     }
 
