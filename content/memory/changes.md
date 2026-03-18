@@ -7,7 +7,7 @@ selfware:
   update_policy: append_only
   owner: user
   created_at: "2026-02-21T10:27:24Z"
-  updated_at: "2026-03-14T14:01:04Z"
+  updated_at: "2026-03-17T04:58:49Z"
 ---
 
 # Change Records
@@ -548,4 +548,32 @@ paths:
   - "content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.md"
 summary: "Exported OpenClaw-与-Agent-OS：从入口争夺到信任体系构建 as .self container with views, runtime, and memory."
 rollback_hint: "n/a (read-only operation)"
+```
+
+---
+
+## id: chg-20260316-165910-chat_edit
+
+```yaml
+id: "chg-20260316-165910-chat_edit"
+timestamp: "2026-03-16T16:59:10Z"
+actor: "user+agent"
+intent: "删除选中的句子"
+paths: ["content/selfware_demo.md"]
+summary: "从文档中删除句子：'这三个点撞在一起后，我开始觉得：我需要的不是“写作技巧升级”，而是一个更适合 AI 时代的 pika 写作 v6.0。'"
+rollback_hint: "git checkout -- content/selfware_demo.md"
+```
+
+---
+
+## id: chg-20260317-045840-chat_edit
+
+```yaml
+id: "chg-20260317-045840-chat_edit"
+timestamp: "2026-03-17T04:58:40Z"
+actor: "user+agent"
+intent: "删除这个文字"
+paths: ["content/selfware_demo.md"]
+summary: "从文档标题中删除 'pika写作 v6.0：' 文字"
+rollback_hint: "git checkout -- content/selfware_demo.md"
 ```
