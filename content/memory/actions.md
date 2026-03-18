@@ -7,7 +7,7 @@ selfware:
   update_policy: append_only
   owner: user
   created_at: "2026-03-13T15:00:00Z"
-  updated_at: "2026-03-14T11:49:05Z"
+  updated_at: "2026-03-18T03:14:27Z"
 ---
 
 # Actions
@@ -142,3 +142,13 @@ selfware:
 - **来源**: 用户导入
 - **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
 - **记忆文件**: `content/articles/OpenClaw-与-Agent-OS：从入口争夺到信任体系构建.memory.md`
+
+---
+
+## 2026-03-18T03:14:13Z — 新增内容: Kimi的残差连接新论文解决了我最近思考的产品缺陷.md
+
+- **路径**: `content/articles/Kimi的残差连接新论文解决了我最近思考的产品缺陷.md`
+- **类型**: 文章 (content/articles/)
+- **来源**: 用户导入
+- **可用操作**: 阅读(doc)、大纲(outline)、脑图(mindmap)、画布(canvas)、演示(presentation)、卡片(card)、AI 编辑、导出 .self
+- **记忆文件**: `content/articles/Kimi的残差连接新论文解决了我最近思考的产品缺陷.memory.md`

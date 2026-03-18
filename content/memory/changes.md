@@ -7,7 +7,11 @@ selfware:
   update_policy: append_only
   owner: user
   created_at: "2026-02-21T10:27:24Z"
-  updated_at: "2026-03-17T04:58:49Z"
+updated_at: "2026-03-17T04:58:49Z"
+
+---
+
+updated_at: "2026-03-18T03:14:27Z"
 ---
 
 # Change Records
@@ -562,6 +566,20 @@ intent: "删除选中的句子"
 paths: ["content/selfware_demo.md"]
 summary: "从文档中删除句子：'这三个点撞在一起后，我开始觉得：我需要的不是“写作技巧升级”，而是一个更适合 AI 时代的 pika 写作 v6.0。'"
 rollback_hint: "git checkout -- content/selfware_demo.md"
+
+---
+
+## id: chg-20260318-025720-compress
+
+```yaml
+id: "chg-20260318-025720-compress"
+timestamp: "2026-03-18T02:57:20Z"
+actor: "user+agent"
+intent: "memory_compress"
+paths:
+  - "content/memory/summaries.md"
+summary: "压缩 31 条变更记录为阶段摘要 phase-20260221-20260314（YYYY-MM-DD ~ 2026-03-14）"
+rollback_hint: "git checkout -- content/memory/summaries.md"
 ```
 
 ---
@@ -576,4 +594,19 @@ intent: "删除这个文字"
 paths: ["content/selfware_demo.md"]
 summary: "从文档标题中删除 'pika写作 v6.0：' 文字"
 rollback_hint: "git checkout -- content/selfware_demo.md"
+
+---
+
+## id: chg-20260318-031413-import
+
+```yaml
+id: "chg-20260318-031413-import"
+timestamp: "2026-03-18T03:14:13Z"
+actor: "user+agent"
+intent: "import_markdown"
+paths:
+  - "content/articles/Kimi的残差连接新论文解决了我最近思考的产品缺陷.md"
+  - "content/articles/Kimi的残差连接新论文解决了我最近思考的产品缺陷.memory.md"
+summary: "将原始 Markdown 文章转换为 Selfware 规范格式。文章探讨了如何将 Kimi 团队的 Attention Residuals 论文中的 Block Attention Residuals 思想应用于解决 Selfware 协议中记忆系统的噪声问题。转换过程中保留了所有核心内容、表格、代码块和关键引用，按照规范格式重组了章节结构，添加了目录和元数据。"
+rollback_hint: "git checkout -- content/articles/Kimi的残差连接新论文解决了我最近思考的产品缺陷.md"
 ```

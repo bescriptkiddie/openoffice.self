@@ -11,30 +11,19 @@ The Next.js app is the primary development target. The Python `server.py` is a s
 
 ---
 
-## Build / Dev / Lint Commands
+## Commands
 
 ```bash
-# Install dependencies
-npm install
-
-# Development (Turbopack)
-npm run dev              # next dev --turbopack (http://localhost:3000)
-
-# Production build
-npm run build            # next build (standalone output)
-npm start                # next start
-
-# Lint
+npm install              # Install dependencies
+npm run dev              # next dev --turbopack → http://localhost:3000
+npm run build            # next build (standalone output for Docker)
+npm start                # next start (production)
 npm run lint             # next lint (ESLint)
-
-# Type check (no dedicated script — run manually)
-npx tsc --noEmit
-
-# Docker
+npx tsc --noEmit         # Type check (no dedicated script)
 docker compose up --build
 ```
 
-### Python Runtime (standalone, no deps)
+### Python Runtime (standalone, zero deps)
 
 ```bash
 python server.py                  # Serve on localhost:8000
@@ -42,39 +31,16 @@ python server.py 8001             # Custom port
 python server.py pack Out.self    # Package as .self container
 ```
 
-### Tests
+### Testing
 
-No test framework is currently configured. When adding tests:
-- Use **Playwright** for E2E tests (per project convention)
-- Use **pytest** for any Python tests
+No test framework is currently configured. There is no `npm test` command.
 
----
+When adding tests:
+- **E2E**: Playwright — `npx playwright test tests/example.spec.ts`
+- **Python**: pytest — `pytest tests/test_server.py`
+- **Type checking a single file**: `npx tsc --noEmit src/path/to/file.ts` (not a test, but catches type errors)
 
-## Project Structure
-
-```
-src/
-  app/                  # Next.js App Router pages
-    api/                # Route handlers (REST endpoints)
-    doc/page.tsx        # Document view
-    canvas/page.tsx     # Canvas view
-    ...                 # Other view pages
-  components/
-    layout/             # Shell, providers, nav components
-    ui/                 # Reusable UI components
-    ErrorBoundary.tsx   # Global error boundary
-    MarkdownRenderer.tsx
-  lib/
-    types.ts            # Shared types and constants (Theme, Lang, ViewDef, etc.)
-    hooks.ts            # React contexts and hooks (useTheme, useLang, useContent, etc.)
-    i18n.ts             # i18n translations (zh/en) via t() helper
-    selfware.ts         # Server-side utils (file I/O, capabilities, change records)
-content/                # Canonical data (write-scoped directory)
-  articles/             # Article markdown files
-  memory/               # Change records (append-only)
-views/                  # Legacy HTML views (served by server.py)
-server.py               # Standalone Python runtime (zero deps)
-```
+No `.cursor/rules`, `.cursorrules`, or `.github/copilot-instructions.md` files exist in this repository.
 
 ---
 
@@ -82,78 +48,75 @@ server.py               # Standalone Python runtime (zero deps)
 
 ### TypeScript / Next.js
 
-- **Strict mode** enabled in tsconfig (`"strict": true`)
-- **Path aliases**: `@/*` maps to `./src/*` — always use `@/` imports
-- **Module resolution**: `bundler` mode
-- **Target**: ES2017
+- **Strict mode** (`"strict": true` in tsconfig)
+- **Path aliases**: `@/*` → `./src/*` — always use `@/` imports, never relative `../`
+- **Module resolution**: `bundler` mode, target ES2017
 
 #### Imports
 
-```typescript
-// 1. Framework/library imports
-import { NextRequest, NextResponse } from "next/server";
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+Order: framework/library → internal `@/` imports. Use `import type` for type-only imports.
 
-// 2. Internal imports via @/ alias
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { useState, useCallback } from "react";
 import type { Theme, Lang } from "@/lib/types";
 import { useLang } from "@/lib/hooks";
 import { t } from "@/lib/i18n";
 ```
 
-- Use `import type { ... }` for type-only imports
-- Prefer named exports; default exports for page components and layout
+Prefer named exports. Default exports only for page components and layouts.
 
 #### Components
 
-- Client components: add `"use client"` directive at top of file
-- Server components: default (no directive needed)
-- Props: define inline interfaces above the component or in `types.ts`
+- Client components: `"use client"` directive at top of file
+- Server components: default (no directive)
+- Props: inline interfaces above the component, or shared in `types.ts`
 - Error boundaries: class components (see `ErrorBoundary.tsx`)
 
 #### Naming
 
-- Files: `PascalCase.tsx` for components, `camelCase.ts` for utilities
-- Directories: `camelCase` or `kebab-case` (Next.js conventions)
-- Types/Interfaces: `PascalCase` (e.g., `ViewDef`, `CapabilitiesPayload`)
-- Hooks: `useCamelCase` (e.g., `useTheme`, `useLang`, `useContent`)
-- i18n keys: `dot.separated.lowercase` (e.g., `"chat.title"`, `"self.loading"`)
+| Entity | Convention | Examples |
+|--------|-----------|----------|
+| Component files | `PascalCase.tsx` | `AppShell.tsx`, `ImportModal.tsx` |
+| Utility files | `camelCase.ts` | `hooks.ts`, `selfware.ts` |
+| Types/Interfaces | `PascalCase` | `ViewDef`, `CapabilitiesPayload` |
+| Hooks | `useCamelCase` | `useTheme`, `useLang`, `useContent` |
+| i18n keys | `dot.separated` | `"chat.title"`, `"self.loading"` |
+| Directories | `camelCase` or `kebab-case` | Next.js conventions |
 
 #### Styling
 
-- **Tailwind CSS 4** via `@tailwindcss/postcss` plugin
-- CSS custom properties for theming (`--bg`, `--text`, `--accent`, `--panel`, etc.)
-- Three themes: `dark` (default), `light`, `book` — toggled via `data-theme` attribute on `<html>`
-- Utility class `.card` for panel styling (defined in `globals.css`)
-- Inline `style={{}}` acceptable for dynamic computed values
+- **Tailwind CSS 4** via `@tailwindcss/postcss`
+- CSS custom properties for theming: `--bg`, `--text`, `--accent`, `--panel`, etc.
+- Three themes: `dark` (default), `light`, `book` — toggled via `data-theme` on `<html>`
 - No CSS modules; global styles in `src/app/globals.css`
+- Inline `style={{}}` acceptable for dynamic values
 
 #### State Management
 
 - React Context via custom hooks (`ThemeContext`, `LangContext`, `ToastContext`, `ChatContext`)
-- All context providers in `src/components/layout/Providers.tsx`
+- All providers in `src/components/layout/Providers.tsx`
 - No external state libraries (no Redux, Zustand, etc.)
 
 #### API Routes
 
-- Located in `src/app/api/*/route.ts`
+- Located at `src/app/api/*/route.ts`
 - Use `NextRequest` / `NextResponse`
 - Security: restrict file reads to `content/` directory
-- Return JSON responses with appropriate error status codes
+- Return JSON with appropriate HTTP status codes (400, 403, 404, 500)
+- Always check external API response status before parsing (e.g., LLM calls)
 
 #### Error Handling
 
-- Empty `catch` blocks acceptable only for optional operations (e.g., fallback file reads)
-- Use `catch (e) { console.error(...) }` for non-critical failures
-- API routes: return proper HTTP status codes (400, 403, 404, 500)
-- Never suppress TypeScript errors with `as any`, `@ts-ignore`, or `@ts-expect-error`
+- Empty `catch` blocks only for optional/fallback operations (e.g., reading a file that may not exist)
+- Non-critical failures: `catch (e) { console.error(...) }`
+- **Never** suppress TypeScript errors with `as any`, `@ts-ignore`, or `@ts-expect-error`
 
 ### Python (`server.py`)
 
 - Pure stdlib — **no external dependencies**
-- Functions use `snake_case`
-- Type hints on function signatures (basic level)
-- No classes except `Handler(http.server.SimpleHTTPRequestHandler)`
+- Functions: `snake_case` with basic type hints
+- Single handler class: `Handler(http.server.SimpleHTTPRequestHandler)`
 - String formatting: f-strings
 - File I/O: explicit `encoding="utf-8"`
 
@@ -162,21 +125,37 @@ import { t } from "@/lib/i18n";
 ## i18n
 
 - Two languages: `zh` (Chinese, default) and `en` (English)
-- Translation strings in `src/lib/i18n.ts` — use `t(key, lang)` helper
-- Language detection: URL param > localStorage > browser `Accept-Language`
-- Content files have language variants: `selfware_demo.md` (zh), `selfware_demo.en.md` (en)
+- Translations in `src/lib/i18n.ts` — use `t(key, lang)` helper
+- Detection priority: URL `?lang=` param → localStorage → browser `Accept-Language`
+- Content variants: `selfware_demo.md` (zh), `selfware_demo.en.md` (en)
+
+---
+
+## Memory System
+
+Content changes are tracked by the memory module in `content/memory/`:
+
+| File | Purpose |
+|------|---------|
+| `changes.md` | Append-only change records — who changed what, when, why, how to rollback |
+| `summaries.md` | Phase summaries — periodic compression of change records (Block AttnRes pattern) |
+| `decisions.md` | Key architecture/protocol decisions with rationale |
+| `actions.md` | Agent action guide — what operations are available and their constraints |
+
+Per-article changes also write to `content/articles/<name>.memory.md` (co-located with the article). Both the per-file memory and global `changes.md` are updated on every change — see `writeChangeRecord()` in `src/lib/selfware.ts`.
+
+### Memory Compression (Block Attention Residuals)
+
+When `changes.md` accumulates many records, call `POST /api/memory-compress` to compress them into a phase summary in `summaries.md`. Agent reads summaries first (cross-block attention), expands into `changes.md` details only when needed (intra-block data). Compression is LLM-driven: relevant decisions get high weight and are retained, obsolete intermediate states get compressed away.
 
 ---
 
 ## Environment Variables
 
 ```bash
-# LLM for AI-assisted editing (used by server.py)
 SELFWARE_LLM_BASE_URL=   # OpenAI-compatible API base (default: stepfun)
 SELFWARE_LLM_MODEL=      # Model name
-SELFWARE_LLM_API_KEY=    # API key (required for chat_edit)
-
-# Server config
+SELFWARE_LLM_API_KEY=    # API key (required for chat_edit and import)
 SELFWARE_PORT=            # Override default port
 SELFWARE_HOST=            # Bind host (default: 127.0.0.1)
 ```
@@ -185,9 +164,10 @@ SELFWARE_HOST=            # Bind host (default: 127.0.0.1)
 
 ## Key Conventions
 
-1. **Write scope**: All file writes MUST be within `content/` directory
-2. **Memory module**: Every content change should generate a change record in `content/memory/changes.md` (append-only)
+1. **Write scope**: All file writes MUST target `content/` directory
+2. **Memory on every change**: Generate change records in both per-file `.memory.md` and global `content/memory/changes.md`
 3. **No silent apply**: Destructive operations require user confirmation
 4. **Standalone output**: Next.js builds with `output: 'standalone'` for Docker
 5. **Canonical data**: `content/selfware_demo.md` is the single source of truth for instance data
 6. **View as function**: Views are projections of the same data — never modify protocol files from views
+7. **LLM error handling**: Always check LLM API response status before parsing; surface real error messages instead of generic failures

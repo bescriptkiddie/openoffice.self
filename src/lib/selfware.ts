@@ -7,6 +7,7 @@ const PROJECT_ROOT = process.cwd();
 const CANONICAL_PATH = "content/selfware_demo.md";
 const MEMORY_CHANGES_PATH = "content/memory/changes.md";
 const MEMORY_ACTIONS_PATH = "content/memory/actions.md";
+const MEMORY_SUMMARIES_PATH = "content/memory/summaries.md";
 const SUPPORTED_LANGS: Lang[] = ["zh", "en"];
 
 export function normalizeLang(lang: string | null | undefined): Lang | null {
@@ -326,4 +327,82 @@ export function listArticles(): {
   }
 
   return { articles, grouped, total: articles.length };
+}
+
+export interface ChangeRecord {
+  id: string;
+  timestamp: string;
+  actor: string;
+  intent: string;
+  paths: string[];
+  summary: string;
+  rollbackHint: string;
+  notes: string;
+  raw: string;
+}
+
+export function parseChangeRecords(memoryPath?: string): ChangeRecord[] {
+  const targetPath = memoryPath || MEMORY_CHANGES_PATH;
+  const fullPath = join(PROJECT_ROOT, targetPath);
+  if (!existsSync(fullPath)) return [];
+
+  const content = readFileSync(fullPath, "utf-8");
+  const blocks = content.split(/^---$/m).filter((b) => b.trim());
+  const records: ChangeRecord[] = [];
+
+  for (const block of blocks) {
+    const yamlMatch = block.match(/```yaml\n([\s\S]*?)```/);
+    if (!yamlMatch) continue;
+
+    const yaml = yamlMatch[1];
+    const get = (key: string): string => {
+      const m = yaml.match(new RegExp(`^\\s*${key}:\\s*['"]?(.+?)['"]?\\s*$`, "m"));
+      return m ? m[1].replace(/^['"]|['"]$/g, "") : "";
+    };
+
+    const pathLines: string[] = [];
+    const pathSection = yaml.match(/paths:\s*\n((?:\s+-\s*.+\n?)*)/);
+    if (pathSection) {
+      for (const line of pathSection[1].split("\n")) {
+        const pm = line.match(/^\s+-\s*['"]?(.+?)['"]?\s*$/);
+        if (pm) pathLines.push(pm[1]);
+      }
+    }
+
+    const id = get("id");
+    if (!id) continue;
+
+    records.push({
+      id,
+      timestamp: get("timestamp"),
+      actor: get("actor"),
+      intent: get("intent"),
+      paths: pathLines,
+      summary: get("summary"),
+      rollbackHint: get("rollback_hint"),
+      notes: get("notes"),
+      raw: yaml.trim(),
+    });
+  }
+
+  return records;
+}
+
+export function getMemorySummariesPath(): string {
+  return MEMORY_SUMMARIES_PATH;
+}
+
+export function appendPhaseSummary(summaryYaml: string): void {
+  const fullPath = join(PROJECT_ROOT, MEMORY_SUMMARIES_PATH);
+  if (!existsSync(fullPath)) return;
+
+  const nowIso = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+  let existing = readFileSync(fullPath, "utf-8");
+  existing = existing.replace(
+    /^(\s*updated_at:\s*)"[^"]*"/m,
+    `$1"${nowIso}"`
+  );
+
+  const record = `\n---\n\n${summaryYaml.trim()}\n`;
+  writeFileSync(fullPath, existing + record, "utf-8");
 }
