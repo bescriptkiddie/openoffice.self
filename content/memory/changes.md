@@ -11,7 +11,7 @@ updated_at: "2026-03-17T04:58:49Z"
 
 ---
 
-updated_at: "2026-03-18T03:14:27Z"
+updated_at: "2026-03-20T00:00:00Z"
 ---
 
 # Change Records
@@ -223,6 +223,24 @@ paths:
 summary: "Improve protocol readability: move Sharing next to Packaging (as 9.4), move Non‑Normative to the end (appendix), and clarify Git collaboration wording to emphasize content/ as the collaboration write target."
 rollback_hint: "git revert HEAD"
 notes: "This is an editorial/structure change; normative rules remain the same."
+```
+
+---
+
+## id: chg-20260320-000000-superpowers-article
+
+```yaml
+id: "chg-20260320-000000-superpowers-article"
+timestamp: "2026-03-20T00:00:00Z"
+actor: "user+agent"
+intent: "create_article"
+paths:
+  - "content/articles/Superpowers-与-openoffice.self：Agent-的长效机制，与对象的长期主权.md"
+  - "content/articles/Superpowers-与-openoffice.self：Agent-的长效机制，与对象的长期主权.memory.md"
+  - "content/memory/changes.md"
+summary: "新增 Superpowers 与 openoffice.self 对照文章，并补齐该文章的 per-file memory 记录与全局变更留痕。"
+rollback_hint: "git revert <commit> 或手动删除新增文章与其 .memory.md 文件，并移除本条 change record。"
+notes: "文章包含对 skills、OpenClaw、GUI→CLI、对象主权四层沉淀关系的判断。"
 ```
 
 ---
